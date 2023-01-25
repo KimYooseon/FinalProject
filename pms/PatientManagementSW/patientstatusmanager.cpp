@@ -45,6 +45,8 @@ void PatientStatusManager::waitInfoSended(QString waitInfoSended){
     row->setText(0, treatPID);
     row->setText(1, treatName);
     row->setText(2, "대기중");
+
+    //ui->waitTreatmentTreeWidget->findItems()
     qDebug("%d", __LINE__);
 }
 

@@ -9,7 +9,7 @@ PatientInfoManager::PatientInfoManager(QWidget *parent) :
     ui->clientInfoTableWidget->setColumnWidth(0,285);
 
     QPixmap *pixmap = new QPixmap();
-        pixmap->load("user.png");
+        pixmap->load("./PatientFace/default.png");
         pixmap->scaled(200,180,Qt::IgnoreAspectRatio);
 
     ui->patientFace->setPixmap(pixmap->scaled(ui->patientFace->size(), Qt::KeepAspectRatio, Qt::SmoothTransformation));

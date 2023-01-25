@@ -28,16 +28,22 @@ signals:
 
 private slots:
     void newConnection();
+    void newFileConnection();
     void disconnected();
     void receiveData();
     bool writeData(QByteArray data);
+    void receiveFile();
 
 private slots:
     void sendDataToClient(QString);
 
+    void goOnSend(qint64 numBytes);
+    void sendFile(int);
+
 private:
     Ui::MainServer *ui;
     QTcpServer *server;
+    QTcpServer *fileServer;
     QHash<QTcpSocket*, QByteArray*> buffers; //We need a buffer to store data until block has completely received
     QHash<QTcpSocket*, qint32*> sizes; //We need to store the size to verify if a block has received completely
     QString makeId();
@@ -49,10 +55,16 @@ private:
     QSqlQuery *query4;
     QSqlQuery *query5;
 
-    //QTcpSocket *socket;
+    QTcpSocket *socket;
+
     QTcpSocket *pmsSocket;
     QTcpSocket *imagingSocket;
     QTcpSocket *viewerSocket;
+
+    QTcpSocket *pmsFileSocket;
+    QTcpSocket *imagingFileSocket;
+    QTcpSocket *viewerFileSocket;
+
 
     QByteArray *buffer;
     QString saveData;
@@ -67,6 +79,22 @@ private:
     bool send_flag = false;
 
     QMap<QTcpSocket *, QString> sk;
+
+
+    qint64 totalSize;
+    qint64 byteReceived = 0;
+    QFile* file;
+    QByteArray inBlock;
+    QString fileName;                           // Receiving FileName
+    QString checkFileName;                      // Previous File Name for checking new file
+    QString currentPID = "NULL";
+    QString currentType = "NULL";
+    qint64 byteToWrite;             // File Size per a block
+    QByteArray outBlock;            // Block for sending
+    int count = 0;
+    qint64 loadSize;                // File Size
+    QMap<QTcpSocket*, QString> fileSocketMap;       // <socket, SW or MODALITY>
+    QString saveFileData;
 
 signals:
     void sendNewPID(QString);

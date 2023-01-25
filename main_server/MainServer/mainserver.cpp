@@ -8,6 +8,8 @@
 #include <QSqlRecord>
 #include <QTcpSocket>
 
+//mvc패턴 적용시키기 위해 정보 변경&삭제시 뷰어와 이미징 모듈에 패킷 보내줄 것 ex. PMO<CR>P00001<CR>NULL
+
 static inline qint32 ArrayToInt(QByteArray source);
 
 MainServer::MainServer(QWidget *parent) :
@@ -16,13 +18,25 @@ MainServer::MainServer(QWidget *parent) :
 {
     ui->setupUi(this);
     server = new QTcpServer(this);
-    //socket = new QTcpSocket(this); //될라나
+
     QTcpSocket* socket = (QTcpSocket*)(sender());
     connect(server, SIGNAL(newConnection()), this, SLOT(newConnection()));
-    
-    QString socket_data = QString("Listening: %1\n").arg(server->listen(QHostAddress::Any, 8000) ? "true" : "false");
+
+    QString socket_data = QString("MainServer Listening: %1\n").arg(server->listen(QHostAddress::Any, 8000) ? "true" : "false");
     ui->textEdit->append(socket_data);
-    
+
+
+
+    fileServer = new QTcpServer(this);
+    //    QTcpSocket* fileSocket = dynamic_cast<QTcpSocket*>(sender());
+    //    QTcpSocket* pmsFileSocket = dynamic_cast<QTcpSocket*>(sender());
+    //    QTcpSocket* imagingFileSocket = dynamic_cast<QTcpSocket*>(sender());
+    //    QTcpSocket* viewerFileSocket = dynamic_cast<QTcpSocket*>(sender());
+    QString fileSocket_data = QString("FileServer Listening: %1\n").arg(fileServer->listen(QHostAddress::Any, 8001) ? "true" : "false");
+    connect(fileServer, SIGNAL(newConnection()), this, SLOT(newFileConnection()));
+    ui->textEdit->append(fileSocket_data);
+
+
     this->loadData();
     
     
@@ -50,6 +64,225 @@ void MainServer::newConnection()
         sizes.insert(socket, s);
     }
 }
+
+void MainServer::newFileConnection()
+{
+    QTcpSocket* fileSocket = fileServer->nextPendingConnection();           //receivedSocket에 fileServer에서 저장해두었던 다음 보류중인 연결을 연결해준다
+    connect(fileSocket, SIGNAL(readyRead()), this, SLOT(receiveFile()));     //받은 소켓에서 정보를 읽어 serverform에서 파일 전송이 가능하도록 만듦
+
+//    qDebug("can transfer files");
+
+//    QString event = saveData.split("<CR>")[0];
+//    QString id = saveData.split("<CR>")[1];
+//    QString data = saveData.split("<CR>")[2];
+
+//    qDebug() << "이벤트: " << event;
+
+//    if(event == "CNT"){
+
+//        /*어떤 모듈과 연관이 있는 소켓인지 알 수 있도록 map에 연결해 저장하는 부분*/
+//        if(id == "PMS")
+//        {
+//            pmsFileSocket = dynamic_cast<QTcpSocket*>(sender());
+//            fileSocketMap.insert(pmsFileSocket, "PMS");
+//            qDebug() << "pmsSocket ready";
+//        }
+//        else if(id == "IMG")
+//        {
+//            imagingSocket = dynamic_cast<QTcpSocket*>(sender());
+//            fileSocketMap.insert(imagingSocket, "IMG");
+//            qDebug() << "imagingSocket ready";
+//        }
+//        else if(id == "VEW")
+//        {
+//            viewerSocket = dynamic_cast<QTcpSocket*>(sender());
+//            fileSocketMap.insert(viewerSocket, "VEW");
+//            qDebug() << "viewerSocket ready";
+//        }
+//    }
+
+
+//    connect(pmsFileSocket, SIGNAL(readyRead()), this, SLOT(receiveFile()));
+//    connect(imagingSocket, SIGNAL(readyRead()), this, SLOT(receiveFile()));
+//    connect(viewerSocket, SIGNAL(readyRead()), this, SLOT(receiveFile()));
+}
+
+void MainServer::receiveFile()
+{
+    //ex.CNT<CR>IMG<CR>NULL
+
+    QTcpSocket *socket = dynamic_cast<QTcpSocket*>(sender());
+
+    if (pmsFileSocket != socket && imagingFileSocket != socket && viewerFileSocket != socket) {
+        QByteArray arr = socket->readAll();
+        QString id = QString(arr).split("<CR>")[1];
+        if (id == "IMG") {
+            qDebug("%d: ididididididi", __LINE__);
+            imagingFileSocket = socket;
+        }
+        else if (id == "PMS") {
+            pmsFileSocket = socket;
+
+        } else if(id == "VEW") {
+            viewerFileSocket =socket;
+        }
+        return;
+    }
+
+
+//    saveFileData = QString(receiveFileData);
+//    ui->textEdit->insertPlainText("FileData: " + saveFileData);
+//    ui->textEdit->insertPlainText("\n");
+
+    // Beginning File Transfer
+    if (byteReceived == 0) {                                    // First Time(Block) , var byteReceived is always zero
+        checkFileName = fileName;                               // 다음 패킷부터 파일이름으로 구분하기 위해 첫 패킷에서 보낸 파일이름을 임시로 저장
+
+        QDataStream in(imagingFileSocket);
+        in.device()->seek(0);
+        in >> totalSize >> byteReceived >> fileName;
+        if(checkFileName == fileName) return;
+
+        QDir dir(QString("./Image/%1").arg(currentPID));
+        if (!dir.exists())
+            dir.mkpath(".");
+
+        QFileInfo info(fileName);
+        QString currentFileName = dir.path() + "/" +info.fileName();
+
+
+
+        file = new QFile(currentFileName);
+        file->open(QFile::WriteOnly);
+    } else {
+        if(checkFileName == fileName) return;
+        inBlock = imagingFileSocket->readAll();
+        qDebug("%d",__LINE__);
+
+        byteReceived += inBlock.size();
+        file->write(inBlock);
+        file->flush();
+    }
+
+    if (byteReceived == totalSize) {        // file sending is done
+        qDebug() << QString("%1 receive completed").arg(fileName);
+        inBlock.clear();
+        byteReceived = 0;
+        totalSize = 0;
+        file->close();
+        delete file;
+    }
+}
+
+//void MainServer::receiveFile()
+//{
+//    QTcpSocket *socket = dynamic_cast<QTcpSocket*>(sender());
+
+//        // Beginning File Transfer
+//        if (byteReceived == 0) {        // First Time(Block) , var byteReceived is always zero
+//            checkFileName = fileName;
+//            QDataStream in(socket);
+//            in.device()->seek(0);
+//            in >> totalSize >> byteReceived >> fileName;
+//            if(checkFileName == fileName) return;   //이전의 파일이름과 같으면 그냥 return 함
+
+//            QDir dir(QString("image/%1/").arg(currentPID));
+//            if (!dir.exists())
+//                dir.mkpath(".");
+
+//            QFileInfo info(fileName);
+//            QString currentFileName = dir.path() + "/"+ info.fileName();
+//            qDebug() << info.fileName();
+//            qDebug() << currentFileName;
+//            file = new QFile(currentFileName);
+//            file->open(QFile::WriteOnly);
+//        } else {
+//            if(checkFileName == fileName) return;
+//            inBlock = socket->readAll();
+
+//            byteReceived += inBlock.size();
+//            file->write(inBlock);
+//            file->flush();
+//        }
+
+//        if (byteReceived == totalSize) {        // file sending is done
+//            qDebug() << QString("%1 receive completed").arg(fileName);
+//            inBlock.clear();
+//            byteReceived = 0;
+//            totalSize = 0;
+//            file->close();
+//            delete file;
+//        }
+
+//}
+
+void MainServer::goOnSend(qint64 numBytes)
+{
+    QTcpSocket *socket = dynamic_cast<QTcpSocket*>(sender());
+    byteToWrite -= numBytes; // Remaining data size
+    outBlock = file->read(qMin(byteToWrite, numBytes));
+    socket->write(outBlock);
+
+    if (byteToWrite == 0) { // Send completed
+        if (count < 100) {
+            count++;
+            sendFile(count);
+        }
+    }
+}
+
+void MainServer::sendFile(int num)
+{
+    QString event = saveFileData.split("<CR>")[0];
+    QString id = saveFileData.split("<CR>")[1];
+
+    if(event=="ISV")
+    {
+
+        QString fileName;
+        if (num >= 100)
+            fileName = QString("./receive/0%1.bmp").arg(num);
+        else
+            fileName = QString("./receive/00%1.bmp").arg(num);
+
+        loadSize = 0;
+        byteToWrite = 0;
+        totalSize = 0;
+        outBlock.clear();
+
+        if(fileName.length()) {
+            file = new QFile(fileName);
+            file->open(QFile::ReadOnly);
+
+            qDebug() << QString("file %1 is opened").arg(fileName);
+
+            byteToWrite = totalSize = file->size(); // Data remained yet
+            loadSize = 1024; // Size of data per a block
+
+            QDataStream out(&outBlock, QIODevice::WriteOnly);
+            out << qint64(0) << qint64(0) << fileName;
+
+            totalSize += outBlock.size();
+            byteToWrite += outBlock.size();
+
+            out.device()->seek(0);
+            out << totalSize << qint64(outBlock.size());
+
+            if(id == "PMS")
+            {
+                fileSocketMap.key("PMS")->write(outBlock);
+            }
+            if(id == "VEW")
+            {
+                fileSocketMap.key("VEW")->write(outBlock); // Send the read file to the socket
+            }
+
+        }
+        qDebug() << QString("Sending file %1").arg(fileName);
+    }
+}
+
+
 
 void MainServer::disconnected()
 {
@@ -498,7 +731,7 @@ void MainServer::receiveData()
 
 
             //@@@@@@@@이부분 미로오빠꺼 열리면 주석풀기@@@@@@@@@
-            //imagingSocket->write(sendData.toStdString().c_str());
+            imagingSocket->write(sendData.toStdString().c_str());
             //QString sendReadyData = event + "<CR>" + id + "<CR>" + name + birthdate + sex ;
 
 
@@ -596,7 +829,7 @@ void MainServer::receiveData()
             qDebug() << "saveData: " << saveData;
 
             //미로오빠 소켓 주석
-            //imagingSocket->write(saveData.toStdString().c_str());
+            imagingSocket->write(saveData.toStdString().c_str());
 
             //정연이 소켓 주석/촬영요청이 pms에서 오든 viewer에서 오든 둘 다 촬영중으로 바뀌었다는 신호를 받아야 하기 때문에 SRQ이벤트를 서버쪽에서 다시 보내주도록 하였음
             pmsSocket->write(saveData.toStdString().c_str());
@@ -692,10 +925,10 @@ void MainServer::loadData()
         ui->reportTableView->setModel(reportModel);
 
         /*임시로 데이터 넣어둔 것. 나중에 지워도 무관*/
-                query4->exec("INSERT INTO report VALUES ('R00001', 'P00001', 'D00002', '2023-01-19', '19일 처방전')");
-                query4->exec("INSERT INTO report VALUES ('R00002', 'P00001', 'D00002', '2023-01-20', '20일 처방전')");
-                query4->exec("INSERT INTO report VALUES ('R00003', 'P00002', 'D00003', '2023-01-21', '21일 처방전')");
-                reportModel->select();
+        query4->exec("INSERT INTO report VALUES ('R00001', 'P00001', 'D00002', '2023-01-19', '19일 처방전')");
+        query4->exec("INSERT INTO report VALUES ('R00002', 'P00001', 'D00002', '2023-01-20', '20일 처방전')");
+        query4->exec("INSERT INTO report VALUES ('R00003', 'P00002', 'D00003', '2023-01-21', '21일 처방전')");
+        reportModel->select();
 
 
 
