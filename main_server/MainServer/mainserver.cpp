@@ -157,7 +157,6 @@ void MainServer::receiveFile()
     } else {
         if(checkFileName == fileName) return;
         inBlock = imagingFileSocket->readAll();
-        qDebug("%d",__LINE__);
 
         byteReceived += inBlock.size();
         file->write(inBlock);
