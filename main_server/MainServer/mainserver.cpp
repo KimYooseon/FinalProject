@@ -67,44 +67,47 @@ void MainServer::newConnection()
 
 void MainServer::newFileConnection()
 {
+    qDebug("%d", __LINE__);
     QTcpSocket* fileSocket = fileServer->nextPendingConnection();           //receivedSocket에 fileServer에서 저장해두었던 다음 보류중인 연결을 연결해준다
     connect(fileSocket, SIGNAL(readyRead()), this, SLOT(receiveFile()));     //받은 소켓에서 정보를 읽어 serverform에서 파일 전송이 가능하도록 만듦
+    qDebug("new file connection");
+    qDebug() << fileSocket->readAll().toStdString().c_str();
+    qDebug("%d", __LINE__);
+    //    qDebug("can transfer files");
 
-//    qDebug("can transfer files");
+    //    QString event = saveData.split("<CR>")[0];
+    //    QString id = saveData.split("<CR>")[1];
+    //    QString data = saveData.split("<CR>")[2];
 
-//    QString event = saveData.split("<CR>")[0];
-//    QString id = saveData.split("<CR>")[1];
-//    QString data = saveData.split("<CR>")[2];
+    //    qDebug() << "이벤트: " << event;
 
-//    qDebug() << "이벤트: " << event;
+    //    if(event == "CNT"){
 
-//    if(event == "CNT"){
-
-//        /*어떤 모듈과 연관이 있는 소켓인지 알 수 있도록 map에 연결해 저장하는 부분*/
-//        if(id == "PMS")
-//        {
-//            pmsFileSocket = dynamic_cast<QTcpSocket*>(sender());
-//            fileSocketMap.insert(pmsFileSocket, "PMS");
-//            qDebug() << "pmsSocket ready";
-//        }
-//        else if(id == "IMG")
-//        {
-//            imagingSocket = dynamic_cast<QTcpSocket*>(sender());
-//            fileSocketMap.insert(imagingSocket, "IMG");
-//            qDebug() << "imagingSocket ready";
-//        }
-//        else if(id == "VEW")
-//        {
-//            viewerSocket = dynamic_cast<QTcpSocket*>(sender());
-//            fileSocketMap.insert(viewerSocket, "VEW");
-//            qDebug() << "viewerSocket ready";
-//        }
-//    }
+    //        /*어떤 모듈과 연관이 있는 소켓인지 알 수 있도록 map에 연결해 저장하는 부분*/
+    //        if(id == "PMS")
+    //        {
+    //            pmsFileSocket = dynamic_cast<QTcpSocket*>(sender());
+    //            fileSocketMap.insert(pmsFileSocket, "PMS");
+    //            qDebug() << "pmsSocket ready";
+    //        }
+    //        else if(id == "IMG")
+    //        {
+    //            imagingSocket = dynamic_cast<QTcpSocket*>(sender());
+    //            fileSocketMap.insert(imagingSocket, "IMG");
+    //            qDebug() << "imagingSocket ready";
+    //        }
+    //        else if(id == "VEW")
+    //        {
+    //            viewerSocket = dynamic_cast<QTcpSocket*>(sender());
+    //            fileSocketMap.insert(viewerSocket, "VEW");
+    //            qDebug() << "viewerSocket ready";
+    //        }
+    //    }
 
 
-//    connect(pmsFileSocket, SIGNAL(readyRead()), this, SLOT(receiveFile()));
-//    connect(imagingSocket, SIGNAL(readyRead()), this, SLOT(receiveFile()));
-//    connect(viewerSocket, SIGNAL(readyRead()), this, SLOT(receiveFile()));
+    //    connect(pmsFileSocket, SIGNAL(readyRead()), this, SLOT(receiveFile()));
+    //    connect(imagingSocket, SIGNAL(readyRead()), this, SLOT(receiveFile()));
+    //    connect(viewerSocket, SIGNAL(readyRead()), this, SLOT(receiveFile()));
 }
 
 void MainServer::receiveFile()
@@ -121,6 +124,8 @@ void MainServer::receiveFile()
             imagingFileSocket = socket;
         }
         else if (id == "PMS") {
+            qDebug("%d: RECEIVED PMS SOCKET", __LINE__);
+            qDebug() << "pmsFileSocket saveData: " << QString(arr);
             pmsFileSocket = socket;
 
         } else if(id == "VEW") {
@@ -130,9 +135,9 @@ void MainServer::receiveFile()
     }
 
 
-//    saveFileData = QString(receiveFileData);
-//    ui->textEdit->insertPlainText("FileData: " + saveFileData);
-//    ui->textEdit->insertPlainText("\n");
+    //    saveFileData = QString(receiveFileData);
+    //    ui->textEdit->insertPlainText("FileData: " + saveFileData);
+    //    ui->textEdit->insertPlainText("\n");
 
     // Beginning File Transfer
     if (byteReceived == 0) {                                    // First Time(Block) , var byteReceived is always zero
@@ -143,11 +148,14 @@ void MainServer::receiveFile()
         in >> totalSize >> byteReceived >> fileName;
         if(checkFileName == fileName) return;
 
-        QDir dir(QString("./Image/%1").arg(currentPID));
+        QFileInfo info(fileName);
+        currentPID = info.fileName();
+
+        QDir dir(QString("./Image/%1").arg(currentPID.first(6)));
         if (!dir.exists())
             dir.mkpath(".");
 
-        QFileInfo info(fileName);
+        //QFileInfo info(fileName);
         QString currentFileName = dir.path() + "/" +info.fileName();
 
 
@@ -215,18 +223,17 @@ void MainServer::receiveFile()
 
 //}
 
-void MainServer::goOnSend(qint64 numBytes)
+void MainServer::goOnSend(qint64 numBytes, QTcpSocket *socketType)
 {
-    QTcpSocket *socket = dynamic_cast<QTcpSocket*>(sender());
-    byteToWrite -= numBytes; // Remaining data size
-    outBlock = file->read(qMin(byteToWrite, numBytes));
-    socket->write(outBlock);
+    /*파일의 전체 크기에서 numBytes씩만큼 나누어 전송*/
+    byteToWrite -= numBytes; // 데이터 사이즈를 유지
 
-    if (byteToWrite == 0) { // Send completed
-        if (count < 100) {
-            count++;
-            sendFile(count);
-        }
+    outBlock = file->read(qMin(byteToWrite, numBytes));
+
+    socketType->write(outBlock);
+
+    if (byteToWrite == 0) {                 // 전송이 완료되었을 때(이제 더이상 남은 파일 크기가 없을 때)
+        qDebug("File sending completed!");
     }
 }
 
@@ -235,50 +242,49 @@ void MainServer::sendFile(int num)
     QString event = saveFileData.split("<CR>")[0];
     QString id = saveFileData.split("<CR>")[1];
 
-    if(event=="ISV")
-    {
 
-        QString fileName;
-        if (num >= 100)
-            fileName = QString("./receive/0%1.bmp").arg(num);
-        else
-            fileName = QString("./receive/00%1.bmp").arg(num);
+    connect(pmsFileSocket, SIGNAL(bytesWritten(qint64)), SLOT(goOnSend(qint64, pmsFileSocket)));  //데이터를 보낼 준비가되면 다른 데이터를 보내고, 데이터를 다 보냈을 때는 데이터 전송을 끝냄
+    //connect(viewerFileSocket, SIGNAL(bytesWritten(qint64)), SLOT(goOnSend(qint64, viewerFileSocket)));
 
-        loadSize = 0;
-        byteToWrite = 0;
-        totalSize = 0;
-        outBlock.clear();
+    loadSize = 0;
+    byteToWrite = 0;
+    totalSize = 0;
+    outBlock.clear();
 
-        if(fileName.length()) {
-            file = new QFile(fileName);
-            file->open(QFile::ReadOnly);
+    QString filename = id; //여기까지함
 
-            qDebug() << QString("file %1 is opened").arg(fileName);
+    if(fileName.length()) {
+        file = new QFile(fileName);
+        file->open(QFile::ReadOnly);
 
-            byteToWrite = totalSize = file->size(); // Data remained yet
-            loadSize = 1024; // Size of data per a block
+        qDebug() << QString("file %1 is opened").arg(fileName);
 
-            QDataStream out(&outBlock, QIODevice::WriteOnly);
-            out << qint64(0) << qint64(0) << fileName;
+        byteToWrite = totalSize = file->size(); // Data remained yet
+        loadSize = 1024; // Size of data per a block
 
-            totalSize += outBlock.size();
-            byteToWrite += outBlock.size();
+        QDataStream out(&outBlock, QIODevice::WriteOnly);
+        out << qint64(0) << qint64(0) << fileName;
 
-            out.device()->seek(0);
-            out << totalSize << qint64(outBlock.size());
+        totalSize += outBlock.size();
+        byteToWrite += outBlock.size();
 
-            if(id == "PMS")
-            {
-                fileSocketMap.key("PMS")->write(outBlock);
-            }
-            if(id == "VEW")
-            {
-                fileSocketMap.key("VEW")->write(outBlock); // Send the read file to the socket
-            }
+        out.device()->seek(0);
+        out << totalSize << qint64(outBlock.size());
 
-        }
-        qDebug() << QString("Sending file %1").arg(fileName);
+        pmsFileSocket->write(outBlock); // Send the read file to the socket    //서버로 보내줌
+
+//        if(id == "PMS")
+//        {
+//            fileSocketMap.key("PMS")->write(outBlock);
+//        }
+//        if(id == "VEW")
+//        {
+//            fileSocketMap.key("VEW")->write(outBlock); // Send the read file to the socket
+//        }
+
     }
+    qDebug() << QString("Sending file %1").arg(fileName);
+
 }
 
 
@@ -378,6 +384,8 @@ void MainServer::receiveData()
                 sk.insert(pmsSocket, "PMS");
                 pmsSocket = socket;
                 qDebug() << "pmsSocket ready";
+                qDebug() << "pmsSocket save: " << saveData;
+
             }
             else if(id == "IMG")
             {
@@ -454,7 +462,6 @@ void MainServer::receiveData()
             
             //이거 고치기 socket->write(sendData.toStdString().c_str());
             pmsSocket->write(sendData.toStdString().c_str());
-
             //sendDataToClient(sendData);
             
             //emit sendNewPID(newPID);
@@ -631,6 +638,7 @@ void MainServer::receiveData()
 
             qDebug() << "PSE's sendData: " << sendData;
             pmsSocket->write(sendData.toStdString().c_str());
+            //pmsFileSocket->write()
 
             //this->loadData();
         }

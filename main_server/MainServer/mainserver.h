@@ -37,7 +37,7 @@ private slots:
 private slots:
     void sendDataToClient(QString);
 
-    void goOnSend(qint64 numBytes);
+    void goOnSend(qint64 numBytes, QTcpSocket *socketType);
     void sendFile(int);
 
 private:
@@ -78,7 +78,9 @@ private:
     bool fd_flag = false;
     bool send_flag = false;
 
-    QMap<QTcpSocket *, QString> sk;
+    QMap<QTcpSocket *, QString> sk; //socket
+    //QMap<QTcpSocket *, QString> fsk; //file socket
+
 
 
     qint64 totalSize;

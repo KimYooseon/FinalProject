@@ -8,9 +8,9 @@ PatientInfoManager::PatientInfoManager(QWidget *parent) :
     ui->setupUi(this);
     ui->clientInfoTableWidget->setColumnWidth(0,285);
 
-    QPixmap *pixmap = new QPixmap();
-        pixmap->load("./PatientFace/default.png");
-        pixmap->scaled(200,180,Qt::IgnoreAspectRatio);
+    pixmap = new QPixmap();
+    pixmap->load("./PatientFace/default.png");
+    pixmap->scaled(200,180,Qt::IgnoreAspectRatio);
 
     ui->patientFace->setPixmap(pixmap->scaled(ui->patientFace->size(), Qt::KeepAspectRatio, Qt::SmoothTransformation));
     //ui->patientFace->setAlignment(Qt::AlignBottom | Qt::AlignCenter);
@@ -61,7 +61,9 @@ void PatientInfoManager::searchDataSended(QString id, QString data)
     ui->clientInfoTableWidget->setItem(5, 0, new QTableWidgetItem(address));
     ui->clientInfoTableWidget->setItem(6, 0, new QTableWidgetItem(memo));
 
-
+    pixmap->load(QString("./PatientFace/%1.png").arg(pid));
+    pixmap->scaled(200,180,Qt::IgnoreAspectRatio);
+    ui->patientFace->setPixmap(pixmap->scaled(ui->patientFace->size(), Qt::KeepAspectRatio, Qt::SmoothTransformation));
 
 
     //ui->tableWidget->setItem(0,0,QTableWidgetItem(pid));

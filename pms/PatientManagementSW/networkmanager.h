@@ -12,7 +12,7 @@ public:
     NetworkManager(QObject *parent = nullptr);
 
 public slots:
-    bool connectToHost(QString host);
+    bool connectToMainHost(QString host);
     bool connectToFileHost(QString host);
     bool writeData(QByteArray data);
 
@@ -41,7 +41,13 @@ private:
 
 
     QTcpSocket *fileSocket;
-
+    qint64 totalSize;
+    qint64 byteReceived = 0;
+    QString fileName;                           // Receiving FileName
+    QString checkFileName;
+    QFile* file;
+    QByteArray inBlock;
+    QString currentPID = "NULL";
 
 signals:
     void sendNewPID(QString);

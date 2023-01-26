@@ -17,10 +17,7 @@ MainWindow::MainWindow(QWidget *parent)
 {
     ui->setupUi(this);
 
-
     ui->textEdit->hide();
-
-
 
 
     imageManager = new ImageManager(this);
