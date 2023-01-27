@@ -1,5 +1,6 @@
 #include "patientinfomanager.h"
 #include "ui_patientinfomanager.h"
+#include <QMessageBox>
 
 PatientInfoManager::PatientInfoManager(QWidget *parent) :
     QWidget(parent),
@@ -83,13 +84,11 @@ void PatientInfoManager::on_deletePushButton_clicked()
 
 void PatientInfoManager::on_WaitPushButton_clicked()
 {
-    //emit sendWaitInfo(pid, name);   //대기 명단에 추가
-
     //이름과 pid는 바뀌지 않는 정보지만 나머지 정보는 검색 후에 수정했을 수도 있으니 현재 테이블에 저장되어있던 값을 가지고 와 저장해준후 서버로 보내기
-    qDebug() << "대기명단에 추가한 pid: " << ui->clientInfoTableWidget->itemAt(0,0)->text();
+    //qDebug() << "대기명단에 추가한 pid: " << ui->clientInfoTableWidget->itemAt(0,0)->text();
     pid = ui->clientInfoTableWidget->item(0, 0)->text();
     name = ui->clientInfoTableWidget->item(1, 0)->text();
-    qDebug() << "name: " << ui->clientInfoTableWidget->itemAt(5,0)->text();
+    //qDebug() << "name: " << ui->clientInfoTableWidget->itemAt(5,0)->text();
 
     sex = ui->clientInfoTableWidget->item(2,0)->text();
     birthdate = ui->clientInfoTableWidget->item(3,0)->text();
@@ -97,12 +96,59 @@ void PatientInfoManager::on_WaitPushButton_clicked()
     address = ui->clientInfoTableWidget->item(5,0)->text();
     memo = ui->clientInfoTableWidget->item(6,0)->text();
 
-    QString sendData = "AWL<CR>" + pid + "<CR>" + name + "|" + sex + "|" + birthdate + "|" + tel + "|" + address + "|" + memo;
-    qDebug() << "서버로 보낼 대기환자 데이터: " <<sendData;
-    //emit sendWaitToServer(sendData);
-    emit sendWaitInfo(sendData);
+    emit sendPIDtoWaitList(pid);
+
+    qDebug() << "waitSignal: " << waitSignal;
+    qDebug("%d", __LINE__);
+//    if(waitSignal == 0)
+//    {
+//        qDebug("%d", __LINE__);
+//        QMessageBox::critical(this, tr("경고"), \
+//                              tr("이미 대기명단에 있는 환자입니다."));
+
+//        return;
+//    }
+
+//    qDebug("##########waitSignal: %d", waitSignal);
+//    if(waitSignal != 1)
+//    {
+//        QString sendData = "AWL<CR>" + pid + "<CR>" + name + "|" + sex + "|" + birthdate + "|" + tel + "|" + address + "|" + memo;
+//    //qDebug() << "서버로 보낼 대기환자 데이터: " <<sendData;
+//    //emit sendWaitToServer(sendData);
+//    emit sendWaitInfo(sendData);
+//    }
+//    qDebug()<<" ";
+
 }
 
+void PatientInfoManager::inWaitListSlot(int inWaitListOrNot)
+{
+    qDebug()<<"inWaitLsit: " << inWaitListOrNot;
+
+    //qDebug("%d", __LINE__);
+    //qDebug()<<"@@@@@@@inWaitListOrNot: " << inWaitListOrNot;
+    //waitSignal = inWaitListOrNot;
+    //qDebug()<<"@@@@@@@waitSignal: " << waitSignal;
+
+    if(inWaitListOrNot == 1)
+    {
+        QMessageBox::critical(this, tr("경고"), \
+                              tr("이미 대기명단에 있는 환자입니다."));
+        return;
+    }
+
+    //qDebug("##########waitSignal: %d", waitSignal);
+
+    if(inWaitListOrNot == 0)
+    {
+        QString sendData = "AWL<CR>" + pid + "<CR>" + name + "|" + sex + "|" + birthdate + "|" + tel + "|" + address + "|" + memo;
+    //qDebug() << "서버로 보낼 대기환자 데이터: " <<sendData;
+    //emit sendWaitToServer(sendData);
+    emit sendWaitInfo(sendData);
+    }
+    qDebug()<<" ";
+
+}
 
 void PatientInfoManager::on_modifyPushButton_clicked()
 {

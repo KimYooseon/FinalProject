@@ -25,6 +25,9 @@ private:
     QString pid, name, sex, birthdate, tel, address, memo;
     QPixmap *pixmap;
 
+    int waitSignal;
+    int count =0;
+
 private slots:
     //void on_modifyPatientInfo_pushButton_clicked();
     void on_searchPushButton_clicked();
@@ -36,6 +39,8 @@ private slots:
 
     void on_modifyPushButton_clicked();
 
+    void inWaitListSlot(int);
+
 signals:
     void sendSearchData(QString);
     void sendDelData(QString);
@@ -43,6 +48,7 @@ signals:
     void sendWaitInfo(QString);
     //void sendWaitToServer(QString);
     void sendModifyData(QString);
+    void sendPIDtoWaitList(QString);
 };
 
 #endif // PATIENTINFOMANAGER_H

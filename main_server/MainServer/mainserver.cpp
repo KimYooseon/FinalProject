@@ -372,21 +372,7 @@ void MainServer::receiveData()
     ui->textEdit->insertPlainText(saveData);
     ui->textEdit->insertPlainText("\n");
     
-    //    QString test = "resend!";
-    //    QByteArray sendtest = test.toStdString().data();
-    //    socket->write(sendtest);
-    
-    //    socket = static_cast<QTcpSocket*>(sender());
-    //    buffer = buffers.value(socket);
-    //qint32 *s = sizes.value(socket);
-    //qint32 size = *s;
-    
-    //receiveData = socket->readAll();
-    //saveData = QString(receiveData);
-    //ui->textEdit->insertPlainText(saveData);
-    //ui->textEdit->insertPlainText("\n");
     qDebug() << "savedata: " << saveData;
-    //qDebug() << "contain test : << "saveData.contains("<CR");
     
     if(saveData.contains("<CR>", Qt::CaseInsensitive) == true)
     {
