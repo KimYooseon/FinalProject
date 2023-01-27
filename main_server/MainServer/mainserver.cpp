@@ -178,6 +178,9 @@ void MainServer::receiveFile()
         totalSize = 0;
         file->close();
         delete file;
+qDebug("%d", __LINE__);
+        sendFile();
+qDebug("%d", __LINE__);
     }
 }
 
@@ -223,47 +226,59 @@ void MainServer::receiveFile()
 
 //}
 
-void MainServer::goOnSend(qint64 numBytes, QTcpSocket *socketType)
+void MainServer::goOnSend(qint64 numBytes)
 {
+    qDebug() <<byteToWrite;
+    qDebug("%d", __LINE__);
     /*파일의 전체 크기에서 numBytes씩만큼 나누어 전송*/
     byteToWrite -= numBytes; // 데이터 사이즈를 유지
-
+qDebug("%d", __LINE__);
+qDebug() << file->size();
     outBlock = file->read(qMin(byteToWrite, numBytes));
-
-    socketType->write(outBlock);
-
+qDebug("%d", __LINE__);
+    pmsFileSocket->write(outBlock);
+qDebug("%d", __LINE__);
     if (byteToWrite == 0) {                 // 전송이 완료되었을 때(이제 더이상 남은 파일 크기가 없을 때)
+        qDebug("%d", __LINE__);
         qDebug("File sending completed!");
+        file->flush();
     }
+    qDebug("%d", __LINE__);
 }
 
-void MainServer::sendFile(int num)
+void MainServer::sendFile()
 {
-    QString event = saveFileData.split("<CR>")[0];
-    QString id = saveFileData.split("<CR>")[1];
+    qDebug() << saveFileData;
+    qDebug("%d", __LINE__);
+    //QString event = saveFileData.split("<CR>")[0];
+    qDebug("%d", __LINE__);
+    //QString id = saveFileData.split("<CR>")[1];
+qDebug("%d", __LINE__);
 
-
-    connect(pmsFileSocket, SIGNAL(bytesWritten(qint64)), SLOT(goOnSend(qint64, pmsFileSocket)));  //데이터를 보낼 준비가되면 다른 데이터를 보내고, 데이터를 다 보냈을 때는 데이터 전송을 끝냄
+    connect(pmsFileSocket, SIGNAL(bytesWritten(qint64)), SLOT(goOnSend(qint64)));  //데이터를 보낼 준비가되면 다른 데이터를 보내고, 데이터를 다 보냈을 때는 데이터 전송을 끝냄
     //connect(viewerFileSocket, SIGNAL(bytesWritten(qint64)), SLOT(goOnSend(qint64, viewerFileSocket)));
-
+qDebug("%d", __LINE__);
     loadSize = 0;
     byteToWrite = 0;
     totalSize = 0;
     outBlock.clear();
+qDebug("%d", __LINE__);
+    //QString filename = id; //여기까지함
 
-    QString filename = id; //여기까지함
 
-    if(fileName.length()) {
-        file = new QFile(fileName);
+qDebug() << currentPID;
+    if(currentPID.length()) {
+qDebug("%d", __LINE__);
+        file = new QFile(QString("./image/%1/%2").arg(currentPID.first(6)).arg(currentPID));
         file->open(QFile::ReadOnly);
-
-        qDebug() << QString("file %1 is opened").arg(fileName);
+qDebug("%d", __LINE__);
+        qDebug() << QString("file %1 is opened").arg(currentPID);
 
         byteToWrite = totalSize = file->size(); // Data remained yet
         loadSize = 1024; // Size of data per a block
 
         QDataStream out(&outBlock, QIODevice::WriteOnly);
-        out << qint64(0) << qint64(0) << fileName;
+        out << qint64(0) << qint64(0) << currentPID;
 
         totalSize += outBlock.size();
         byteToWrite += outBlock.size();
@@ -283,7 +298,8 @@ void MainServer::sendFile(int num)
 //        }
 
     }
-    qDebug() << QString("Sending file %1").arg(fileName);
+    qDebug() << QString("Sending file %1").arg(currentPID);
+    qDebug("%d", __LINE__);
 
 }
 

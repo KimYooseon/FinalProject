@@ -37,8 +37,8 @@ private slots:
 private slots:
     void sendDataToClient(QString);
 
-    void goOnSend(qint64 numBytes, QTcpSocket *socketType);
-    void sendFile(int);
+    void goOnSend(qint64 numBytes);
+    void sendFile();
 
 private:
     Ui::MainServer *ui;
