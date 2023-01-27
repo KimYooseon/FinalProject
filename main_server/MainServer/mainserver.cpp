@@ -39,7 +39,7 @@ MainServer::MainServer(QWidget *parent) :
 
     this->loadData();
     
-    
+
     //connect(this, SIGNAL(sendNewPID(QString)), SLOT(sendDataToClient(QString))); //구현 다 한 후에 헤더에 선언하기
     
 }
@@ -129,6 +129,8 @@ void MainServer::receiveFile()
             pmsFileSocket = socket;
 
         } else if(id == "VEW") {
+            qDebug("%d: RECEIVED VIEWER SOCKET", __LINE__);
+            qDebug() << "viewerFileSocket saveData: " << QString(arr);
             viewerFileSocket =socket;
         }
         return;
@@ -162,6 +164,7 @@ void MainServer::receiveFile()
 
         file = new QFile(currentFileName);
         file->open(QFile::WriteOnly);
+
     } else {
         if(checkFileName == fileName) return;
         inBlock = imagingFileSocket->readAll();
@@ -182,6 +185,9 @@ qDebug("%d", __LINE__);
         sendFile();
 qDebug("%d", __LINE__);
     }
+
+
+
 }
 
 //void MainServer::receiveFile()
@@ -237,6 +243,7 @@ qDebug() << file->size();
     outBlock = file->read(qMin(byteToWrite, numBytes));
 qDebug("%d", __LINE__);
     pmsFileSocket->write(outBlock);
+    viewerFileSocket->write(outBlock);
 qDebug("%d", __LINE__);
     if (byteToWrite == 0) {                 // 전송이 완료되었을 때(이제 더이상 남은 파일 크기가 없을 때)
         qDebug("%d", __LINE__);
@@ -256,7 +263,7 @@ void MainServer::sendFile()
 qDebug("%d", __LINE__);
 
     connect(pmsFileSocket, SIGNAL(bytesWritten(qint64)), SLOT(goOnSend(qint64)));  //데이터를 보낼 준비가되면 다른 데이터를 보내고, 데이터를 다 보냈을 때는 데이터 전송을 끝냄
-    //connect(viewerFileSocket, SIGNAL(bytesWritten(qint64)), SLOT(goOnSend(qint64, viewerFileSocket)));
+    connect(viewerFileSocket, SIGNAL(bytesWritten(qint64)), SLOT(goOnSend(qint64, viewerFileSocket)));
 qDebug("%d", __LINE__);
     loadSize = 0;
     byteToWrite = 0;
@@ -287,7 +294,7 @@ qDebug("%d", __LINE__);
         out << totalSize << qint64(outBlock.size());
 
         pmsFileSocket->write(outBlock); // Send the read file to the socket    //서버로 보내줌
-
+viewerFileSocket->write(outBlock);
 //        if(id == "PMS")
 //        {
 //            fileSocketMap.key("PMS")->write(outBlock);
@@ -696,7 +703,7 @@ void MainServer::receiveData()
 
 
             //**********여기는 정연이 뷰어SW가 켜져있을 때 다시 주석 풀기************
-            qDebug() << "정연이 소켓 있는지 확인: " << viewerSocket->isValid();
+            //qDebug() << "정연이 소켓 있는지 확인: " << viewerSocket->isValid();
             viewerSocket->write(sendWaitData.toStdString().c_str());
 
 

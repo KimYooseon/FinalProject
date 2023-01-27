@@ -40,6 +40,17 @@ void PatientStatusManager::waitInfoSended(QString waitInfoSended){
 
     qDebug() << "pid, name: " << treatPID << ", " << treatName;
     qDebug("%d", __LINE__);
+
+    qDebug() << "정보 이미 있는지 확인: " << ui->waitTreatmentTreeWidget->findItems(treatPID, Qt::MatchFlags(Qt::MatchCaseSensitive)).count();
+    int inWaitListOrNot = ui->waitTreatmentTreeWidget->findItems(treatPID, Qt::MatchFlags(Qt::MatchCaseSensitive)).count();
+
+
+    if(inWaitListOrNot != 0)
+    {
+        QMessageBox::critical(this, tr("경고"), \
+                              tr("이미 대기명단에 있는 환자입니다."));
+        return;
+    }
     QTreeWidgetItem* row = new QTreeWidgetItem;
     ui->waitTreatmentTreeWidget->addTopLevelItem(row);
     row->setText(0, treatPID);
@@ -86,6 +97,8 @@ void PatientStatusManager::on_paymentPushButton_clicked()
         ui->waitPaymentTreeWidget->takeTopLevelItem(ui->waitPaymentTreeWidget->indexOfTopLevelItem(selectedPayRow));
 
         ui->waitPaymentTreeWidget->update();                               //treeWidget 업데이트
+        QMessageBox::information(this, tr("정보"), \
+                              tr("수납 처리가 완료되었습니다."));
     }
 
 }

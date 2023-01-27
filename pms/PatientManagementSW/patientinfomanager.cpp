@@ -67,6 +67,10 @@ void PatientInfoManager::searchDataSended(QString id, QString data)
 
 
     //ui->tableWidget->setItem(0,0,QTableWidgetItem(pid));
+
+    //폴더 삭제
+//    QDir dir("./Image/P00005");
+//        dir.removeRecursively();
 }
 
 
