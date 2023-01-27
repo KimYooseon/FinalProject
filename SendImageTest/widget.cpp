@@ -36,14 +36,14 @@ Widget::~Widget()
 /* 파일 전송시 여러번 나눠서 전송 */
 void Widget::goOnSend(qint64 numBytes)      // 파일 전송을 시작
 {
-    qDebug("%d",__LINE__);
+
     /*파일의 전체 크기에서 numBytes씩만큼 나누어 전송*/
     byteToWrite -= numBytes; // 데이터 사이즈를 유지
-qDebug("%d",__LINE__);
+
     outBlock = file->read(qMin(byteToWrite, numBytes));
-qDebug("%d",__LINE__);
+
     fileClient->write(outBlock);
-qDebug("%d",__LINE__);
+
     if (byteToWrite == 0) {                 // 전송이 완료되었을 때(이제 더이상 남은 파일 크기가 없을 때)
         qDebug("File sending completed!");
     }
@@ -58,7 +58,10 @@ void Widget::sendFile() // 파일을 열고 파일 이름을 가져오는 부분
     totalSize = 0;
     outBlock.clear();
 
-    QString filename = "./flower.jpg";
+    QString PID; //메인서버에 연결된 후에 특정 PID 환자의 사진을 보내달라고 요청이 오면 여기서 보냄
+
+    QString filename = "./Image/P00006.png";
+    //QString filename = QString("./%1.jpg").arg(PID).first(6);
     if(filename.length()) {             //파일이름 선택할 때 파일이름의 길이가 1이상이면
         file = new QFile(filename);     //file 객체를 만들어 파일을 readOnly로 연다
         file->open(QFile::ReadOnly);
@@ -75,19 +78,19 @@ void Widget::sendFile() // 파일을 열고 파일 이름을 가져오는 부분
         byteToWrite = totalSize = file->size(); // The size of the remaining data
         loadSize = 1024; // The size of data sent each time
 
-qDebug("%d",__LINE__);
+
         QDataStream out(&outBlock, QIODevice::WriteOnly);
-qDebug("%d",__LINE__);
+
         out << qint64(0) << qint64(0) << filename;  //filename과 name의 크기가 현재는 어떤 상태인지 모르니까 일단 만들어놓음
-qDebug("%d",__LINE__);
+
         totalSize += outBlock.size(); // The total size is the file size plus the size of the file name and other information
         byteToWrite += outBlock.size();
 
         out.device()->seek(0); // 앞으로 이동해 일단 0으로 설정되어 있었던 totalsize와 byteToWrite의 제대로 된 값을 적어줌 // Go back to the beginning of the byte stream to write a qint64 in front, which is the total size and file name and other information size
         out << totalSize << qint64(outBlock.size());
-qDebug("%d",__LINE__);
+
         fileClient->write(outBlock); // Send the read file to the socket    //서버로 보내줌
-qDebug("%d",__LINE__);
+
     }
     qDebug() << QString("Sending file %1").arg(filename);
 }
