@@ -243,7 +243,9 @@ qDebug() << file->size();
     outBlock = file->read(qMin(byteToWrite, numBytes));
 qDebug("%d", __LINE__);
     pmsFileSocket->write(outBlock);
-    viewerFileSocket->write(outBlock);
+
+    //정연이
+   // viewerFileSocket->write(outBlock);
 qDebug("%d", __LINE__);
     if (byteToWrite == 0) {                 // 전송이 완료되었을 때(이제 더이상 남은 파일 크기가 없을 때)
         qDebug("%d", __LINE__);
@@ -256,14 +258,13 @@ qDebug("%d", __LINE__);
 void MainServer::sendFile()
 {
     qDebug() << saveFileData;
-    qDebug("%d", __LINE__);
     //QString event = saveFileData.split("<CR>")[0];
-    qDebug("%d", __LINE__);
     //QString id = saveFileData.split("<CR>")[1];
-qDebug("%d", __LINE__);
+
 
     connect(pmsFileSocket, SIGNAL(bytesWritten(qint64)), SLOT(goOnSend(qint64)));  //데이터를 보낼 준비가되면 다른 데이터를 보내고, 데이터를 다 보냈을 때는 데이터 전송을 끝냄
-    connect(viewerFileSocket, SIGNAL(bytesWritten(qint64)), SLOT(goOnSend(qint64, viewerFileSocket)));
+//정연
+//    connect(viewerFileSocket, SIGNAL(bytesWritten(qint64)), SLOT(goOnSend(qint64, viewerFileSocket)));
 qDebug("%d", __LINE__);
     loadSize = 0;
     byteToWrite = 0;
@@ -275,11 +276,13 @@ qDebug("%d", __LINE__);
 
 qDebug() << currentPID;
     if(currentPID.length()) {
-qDebug("%d", __LINE__);
-        file = new QFile(QString("./image/%1/%2").arg(currentPID.first(6)).arg(currentPID));
+
+        file = new QFile(QString("./Image/%1/%2").arg(currentPID.first(6)).arg(currentPID));
         file->open(QFile::ReadOnly);
-qDebug("%d", __LINE__);
+
         qDebug() << QString("file %1 is opened").arg(currentPID);
+
+        qDebug() <<"@@@@@@@@file->size(): " << file->size();
 
         byteToWrite = totalSize = file->size(); // Data remained yet
         loadSize = 1024; // Size of data per a block
@@ -294,8 +297,11 @@ qDebug("%d", __LINE__);
         out << totalSize << qint64(outBlock.size());
 
         pmsFileSocket->write(outBlock); // Send the read file to the socket    //서버로 보내줌
-viewerFileSocket->write(outBlock);
-//        if(id == "PMS")
+//정연
+//viewerFileSocket->write(outBlock);
+
+
+        //        if(id == "PMS")
 //        {
 //            fileSocketMap.key("PMS")->write(outBlock);
 //        }
@@ -513,6 +519,9 @@ void MainServer::receiveData()
             if(id == "0"){      //환자번호로 검색했을 때
                 sendData = sendData + data + "<CR>";
                 
+                //시도중
+                currentPID = data+".png";
+
                 query->exec("select * from patient WHERE patient_no = '" + data + "'");
                 QSqlRecord rec = query->record();
                 qDebug() << "Number of columns: " << rec.count();
@@ -648,6 +657,7 @@ void MainServer::receiveData()
             qDebug() << "PSE's sendData: " << sendData;
             pmsSocket->write(sendData.toStdString().c_str());
             //pmsFileSocket->write()
+            sendFile();
 
             //this->loadData();
         }
