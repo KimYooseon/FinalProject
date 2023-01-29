@@ -242,10 +242,13 @@ qDebug("%d", __LINE__);
 qDebug() << file->size();
     outBlock = file->read(qMin(byteToWrite, numBytes));
 qDebug("%d", __LINE__);
-    pmsFileSocket->write(outBlock);
+
+    if(sendFileFlag==0)
+        pmsFileSocket->write(outBlock);
 
     //정연이
-   // viewerFileSocket->write(outBlock);
+    else if(sendFileFlag==1)
+        viewerFileSocket->write(outBlock);
 qDebug("%d", __LINE__);
     if (byteToWrite == 0) {                 // 전송이 완료되었을 때(이제 더이상 남은 파일 크기가 없을 때)
         qDebug("%d", __LINE__);
@@ -262,9 +265,11 @@ void MainServer::sendFile()
     //QString id = saveFileData.split("<CR>")[1];
 
 
-    connect(pmsFileSocket, SIGNAL(bytesWritten(qint64)), SLOT(goOnSend(qint64)));  //데이터를 보낼 준비가되면 다른 데이터를 보내고, 데이터를 다 보냈을 때는 데이터 전송을 끝냄
+    if(sendFileFlag==0)
+        connect(pmsFileSocket, SIGNAL(bytesWritten(qint64)), SLOT(goOnSend(qint64)));  //데이터를 보낼 준비가되면 다른 데이터를 보내고, 데이터를 다 보냈을 때는 데이터 전송을 끝냄
 //정연
-//    connect(viewerFileSocket, SIGNAL(bytesWritten(qint64)), SLOT(goOnSend(qint64, viewerFileSocket)));
+    else if(sendFileFlag==1)
+        connect(viewerFileSocket, SIGNAL(bytesWritten(qint64)), SLOT(goOnSend(qint64, viewerFileSocket)));
 qDebug("%d", __LINE__);
     loadSize = 0;
     byteToWrite = 0;
@@ -296,9 +301,11 @@ qDebug() << currentPID;
         out.device()->seek(0);
         out << totalSize << qint64(outBlock.size());
 
-        pmsFileSocket->write(outBlock); // Send the read file to the socket    //서버로 보내줌
+        if(sendFileFlag==0)
+            pmsFileSocket->write(outBlock); // Send the read file to the socket    //서버로 보내줌
 //정연
-//viewerFileSocket->write(outBlock);
+        else if(sendFileFlag==1)
+            viewerFileSocket->write(outBlock);
 
 
         //        if(id == "PMS")
@@ -610,6 +617,8 @@ void MainServer::receiveData()
                 }
                 
                 qDebug()<<"pid: "<<pid;
+                currentPID = pid+".png";
+
                 QString reportData ="<NEL>";
                 query4->exec("select * from report WHERE patient_no = '"+ pid +"'");
                 QSqlRecord reportRec =query4->record();
@@ -656,7 +665,9 @@ void MainServer::receiveData()
 
             qDebug() << "PSE's sendData: " << sendData;
             pmsSocket->write(sendData.toStdString().c_str());
-            //pmsFileSocket->write()
+
+
+            sendFileFlag = 0;
             sendFile();
 
             //this->loadData();
@@ -840,6 +851,9 @@ void MainServer::receiveData()
             //qDebug() << sendData << "sfdffsdsf";
             qDebug() << "sendData: " << sendData;
             viewerSocket->write(sendData.toStdString().c_str());
+            sendFileFlag = 1;
+            sendFile();
+
             pmsSocket->write(sendData.toStdString().c_str());
 
         }

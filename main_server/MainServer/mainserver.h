@@ -98,6 +98,8 @@ private:
     QMap<QTcpSocket*, QString> fileSocketMap;       // <socket, SW or MODALITY>
     QString saveFileData;
 
+    int sendFileFlag = 0; //0이면 pms로, 1이면 viewer
+
 signals:
     void sendNewPID(QString);
 
