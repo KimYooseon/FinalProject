@@ -111,6 +111,8 @@ void NetworkManager::receiveFile()
         totalSize = 0;
         file->close();
         delete file;
+
+        emit PSEDataInNET(currentPID.first(6));
     }
 }
 

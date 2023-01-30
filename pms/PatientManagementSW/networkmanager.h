@@ -57,7 +57,7 @@ signals:
     void sendISVevent(QString);
     void sendVTFevent(QString);
 
-
+    void PSEDataInNET(QString);
 
 
 };

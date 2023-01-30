@@ -86,6 +86,8 @@ private:
     qint64 totalSize;
     qint64 byteReceived = 0;
     QFile* file;
+
+
     QByteArray inBlock;
     QString fileName;                           // Receiving FileName
     QString checkFileName;                      // Previous File Name for checking new file
@@ -97,6 +99,8 @@ private:
     qint64 loadSize;                // File Size
     QMap<QTcpSocket*, QString> fileSocketMap;       // <socket, SW or MODALITY>
     QString saveFileData;
+
+    int sendFileFlag = 0; //0이면 pms로, 1이면 viewer
 
 signals:
     void sendNewPID(QString);
