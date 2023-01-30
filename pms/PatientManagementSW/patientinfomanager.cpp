@@ -62,9 +62,9 @@ void PatientInfoManager::searchDataSended(QString id, QString data)
     ui->clientInfoTableWidget->setItem(5, 0, new QTableWidgetItem(address));
     ui->clientInfoTableWidget->setItem(6, 0, new QTableWidgetItem(memo));
 
-    pixmap->load(QString("./PatientFace/%1.png").arg(pid));
-    pixmap->scaled(200,180,Qt::IgnoreAspectRatio);
-    ui->patientFace->setPixmap(pixmap->scaled(ui->patientFace->size(), Qt::KeepAspectRatio, Qt::SmoothTransformation));
+//    pixmap->load(QString("./PatientFace/%1.png").arg(pid));
+//    pixmap->scaled(200,180,Qt::IgnoreAspectRatio);
+//    ui->patientFace->setPixmap(pixmap->scaled(ui->patientFace->size(), Qt::KeepAspectRatio, Qt::SmoothTransformation));
 
 
     //ui->tableWidget->setItem(0,0,QTableWidgetItem(pid));
@@ -182,6 +182,14 @@ void PatientInfoManager::on_modifyPushButton_clicked()
     //    }
 
     //emit modifyPInfo(pid, textData, sendData); //수정된 정보들 보내줘야 함
-
 }
 
+void PatientInfoManager::byteArraySended(QPixmap &pix)
+{
+//    qDebug("%d", __LINE__);
+//    ui->patientFace->setPixmap(pix.scaledToHeight(ui->patientFace->height()));
+
+////    QPixmap *pix = new QPixmap(QSize(400, 300));
+////    pix->loadFromData(*byteArray);
+////    ui->patientFace->setPixmap(*pix);
+}

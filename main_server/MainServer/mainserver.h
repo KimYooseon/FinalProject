@@ -40,6 +40,8 @@ private slots:
     void goOnSend(qint64 numBytes);
     void sendFile();
 
+    void sendFaceImage();
+
 private:
     Ui::MainServer *ui;
     QTcpServer *server;

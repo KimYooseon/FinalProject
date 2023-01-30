@@ -29,7 +29,8 @@ NetworkManager::NetworkManager(QObject *parent)
     fileSocket->connectToHost("127.0.0.1", 8001);
     //file_flag = connectToFileHost("127.0.0.1");
 
-    connect(fileSocket, SIGNAL(readyRead()), this, SLOT(receiveFile()));
+//    connect(fileSocket, SIGNAL(readyRead()), this, SLOT(receiveFile()));
+    connect(fileSocket, SIGNAL(readyRead()), this, SLOT(receiveFaceImage()));
 
     if(fileSocket->waitForConnected())
         fileSocket->write("CNT<CR>PMS<CR>NULL");
@@ -59,6 +60,114 @@ bool NetworkManager::connectToFileHost(QString host)
     socket->connectToHost(host, 8001);
     return socket->waitForConnected();
 }
+
+void NetworkManager::receiveFaceImage()
+{
+    QTcpSocket *socket = dynamic_cast<QTcpSocket*>(sender());
+
+    if (fileSocket != socket) {
+        QByteArray arr = socket->readAll();
+        QString id = QString(arr).split("<CR>")[1];
+        if (id == "PMS") {
+            fileSocket = socket;
+        }
+        return;
+    }
+
+
+    if (byteReceived == 0) {                                    // First Time(Block) , var byteReceived is always zero
+        checkFileName = fileName;                               // 다음 패킷부터 파일이름으로 구분하기 위해 첫 패킷에서 보낸 파일이름을 임시로 저장
+
+        QDataStream in(fileSocket);
+        in.device()->seek(0);
+        in >> totalSize >> byteReceived >> fileName;
+        if(checkFileName == fileName) return;
+
+        QFileInfo info(fileName);
+        currentPID = info.fileName();
+
+        QDir dir(QString("./Face/%1").arg(currentPID.first(6)));   //ex.P00001
+        if (!dir.exists())
+            dir.mkpath(".");
+
+        QString currentFileName = dir.path() + "/" +info.fileName();
+
+
+
+        file = new QFile(currentFileName);
+        file->open(QFile::WriteOnly);
+    } else {
+        if(checkFileName == fileName) return;
+        inBlock = fileSocket->readAll();
+
+        byteReceived += inBlock.size();
+
+
+        file->write(inBlock);
+        file->flush();
+    }
+
+    if (byteReceived == totalSize) {        // file sending is done
+        qDebug() << QString("%1 receive completed").arg(fileName);
+        inBlock.clear();
+        byteReceived = 0;
+        totalSize = 0;
+        file->close();
+        delete file;
+
+        emit PSEDataInNET(currentPID.first(6));
+    }
+
+//    byteArray = new QByteArray;
+
+//    QTcpSocket *socket = dynamic_cast<QTcpSocket*>(sender());
+/*////    if (fileSocket != socket) {
+////        QByteArray arr = socket->readAll();
+
+////        QString id = QString(arr).split("<CR>")[1];
+////        fileSocket = socket;
+////        return;
+////    }*/
+//    qDebug("%s %d", __FUNCTION__, __LINE__);
+//    if (byteReceived == 0) {                                    // First Time(Block) , var byteReceived is always zero
+//        checkFileName = fileName;                               // 다음 패킷부터 파일이름으로 구분하기 위해 첫 패킷에서 보낸 파일이름을 임시로 저장
+//        qDebug("%s %d", __FUNCTION__, __LINE__);
+//        QDataStream in(fileSocket);
+//        in.device()->seek(0);
+//        in >> totalSize >> byteReceived >> fileName;
+//        if(checkFileName == fileName) return;
+//        qDebug("%s %d", __FUNCTION__, __LINE__);
+//        QFileInfo info(fileName);
+//        currentPID = info.fileName();
+
+//    } else {
+//        if(checkFileName == fileName) return;
+//        inBlock = fileSocket->readAll();
+//        qDebug("%s %d", __FUNCTION__, __LINE__);
+//        byteReceived += inBlock.size();
+//        qDebug("%s %d", __FUNCTION__, __LINE__);
+//        byteArray->append(inBlock);
+//        qDebug("%s %d", __FUNCTION__, __LINE__);
+//    }
+
+//    if (byteReceived == totalSize) {        // file sending is done
+//        qDebug("%s %d", __FUNCTION__, __LINE__);
+//        qDebug() << QString("%1 receive completed").arg(fileName);
+//        inBlock.clear();
+//        byteReceived = 0;
+//        totalSize = 0;
+//        qDebug("%s %d", __FUNCTION__, __LINE__);
+
+//        QPixmap pix(400, 300);
+//        pix.loadFromData(*byteArray);
+
+
+//        emit sendByteArray(pix);
+//        qDebug("%s %d", __FUNCTION__, __LINE__);
+//        byteArray->clear();
+//    }
+}
+
 
 void NetworkManager::receiveFile()
 {
@@ -100,6 +209,8 @@ void NetworkManager::receiveFile()
         inBlock = fileSocket->readAll();
 
         byteReceived += inBlock.size();
+
+
         file->write(inBlock);
         file->flush();
     }
@@ -207,6 +318,11 @@ void NetworkManager::receiveData()
         {
             qDebug()<<"VTF event Received: " << saveData;
             emit sendVTFevent(saveData);
+        }
+        else if(event == "VNT")
+        {
+            qDebug()<<"VNT event Received: " << saveData;
+            emit sendVNTevent(saveData);
         }
 
 

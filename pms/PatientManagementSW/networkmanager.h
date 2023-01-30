@@ -23,6 +23,7 @@ private slots:
     void receiveFile();
 //    void newConnection();
 //    void disconnected();
+    void receiveFaceImage();
 
 private:
     QTcpSocket *socket;
@@ -49,6 +50,8 @@ private:
     QByteArray inBlock;
     QString currentPID = "NULL";
 
+    QByteArray *byteArray;
+
 signals:
     void sendNewPID(QString);
     void sendSearchResult(QString, QString);
@@ -56,9 +59,13 @@ signals:
     void sendVTSRequest(QString);
     void sendISVevent(QString);
     void sendVTFevent(QString);
+    void sendVNTevent(QString);
+
 
     void PSEDataInNET(QString);
 
+//    void sendByteArray(QByteArray*);
+   void sendByteArray(const QPixmap&);
 
 };
 

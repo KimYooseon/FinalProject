@@ -235,38 +235,68 @@ qDebug("%d", __LINE__);
 void MainServer::goOnSend(qint64 numBytes)
 {
     qDebug() <<byteToWrite;
-    qDebug("%d", __LINE__);
+    outBlock.clear();
     /*파일의 전체 크기에서 numBytes씩만큼 나누어 전송*/
     byteToWrite -= numBytes; // 데이터 사이즈를 유지
-qDebug("%d", __LINE__);
+
 qDebug() << file->size();
     outBlock = file->read(qMin(byteToWrite, numBytes));
-qDebug("%d", __LINE__);
 
     if(sendFileFlag==0)
         pmsFileSocket->write(outBlock);
 
+
     //정연이
     else if(sendFileFlag==1)
-
-    {
-        qDebug() << "goonsend 정연이쪽으로 파일!!!";
-        viewerFileSocket->write(outBlock);
-    }
-
         viewerFileSocket->write(outBlock);
 
-qDebug("%d", __LINE__);
+
     if (byteToWrite == 0) {                 // 전송이 완료되었을 때(이제 더이상 남은 파일 크기가 없을 때)
         qDebug("%d", __LINE__);
         qDebug("File sending completed!");
         file->flush();
     }
-    qDebug("%d", __LINE__);
 }
+
+void MainServer::sendFaceImage()
+{
+    qDebug("^^^^^^^^^^^^^^^^^^^^^^^^^^");
+    qDebug() << currentPID;
+//    connect(pmsFileSocket, SIGNAL(bytesWritten(qint64)), SLOT(goOnSend(qint64)));
+
+    loadSize = 0;
+    byteToWrite = 0;
+    totalSize = 0;
+    outBlock.clear();
+
+    if(currentPID.length())
+    {
+        file =new QFile(QString("./Face/%1").arg(currentPID));
+        file->open(QFile::ReadOnly);
+
+        byteToWrite = totalSize = file->size(); // Data remained yet
+        loadSize = 1024; // Size of data per a block
+
+        QDataStream out(&outBlock, QIODevice::WriteOnly);
+        out << qint64(0) << qint64(0) << currentPID;
+
+        totalSize += outBlock.size();
+        byteToWrite += outBlock.size();
+
+        out.device()->seek(0);
+        out << totalSize << qint64(outBlock.size());
+
+        pmsFileSocket->write(outBlock); // Send the read file to the socket    //서버로 보내줌
+
+    }
+    qDebug() << QString("Sending image file %1").arg(currentPID);
+
+}
+
 
 void MainServer::sendFile()
 {
+    qDebug() << "***********************************";
     qDebug() << saveFileData;
     //QString event = saveFileData.split("<CR>")[0];
     //QString id = saveFileData.split("<CR>")[1];
@@ -276,20 +306,16 @@ void MainServer::sendFile()
         connect(pmsFileSocket, SIGNAL(bytesWritten(qint64)), SLOT(goOnSend(qint64)));  //데이터를 보낼 준비가되면 다른 데이터를 보내고, 데이터를 다 보냈을 때는 데이터 전송을 끝냄
 //정연
     else if(sendFileFlag==1)
-
     {
         qDebug() << "sendFile 정연이쪽으로 파일!!!";
         connect(viewerFileSocket, SIGNAL(bytesWritten(qint64)), SLOT(goOnSend(qint64)));
     }
 
-        connect(viewerFileSocket, SIGNAL(bytesWritten(qint64)), SLOT(goOnSend(qint64)));
-
-qDebug("%d", __LINE__);
     loadSize = 0;
     byteToWrite = 0;
     totalSize = 0;
     outBlock.clear();
-qDebug("%d", __LINE__);
+
     //QString filename = id; //여기까지함
 
 
@@ -321,19 +347,9 @@ qDebug() << currentPID;
         else if(sendFileFlag==1)
             viewerFileSocket->write(outBlock);
 
-
-        //        if(id == "PMS")
-//        {
-//            fileSocketMap.key("PMS")->write(outBlock);
-//        }
-//        if(id == "VEW")
-//        {
-//            fileSocketMap.key("VEW")->write(outBlock); // Send the read file to the socket
-//        }
-
     }
     qDebug() << QString("Sending file %1").arg(currentPID);
-    qDebug("%d", __LINE__);
+
 
 }
 
@@ -684,6 +700,10 @@ void MainServer::receiveData()
             sendFileFlag = 0;
             sendFile();
 
+            qDebug() << "&&&&&&&&&&&";
+
+            sendFaceImage();
+
 
             //this->loadData();
         }
@@ -729,8 +749,8 @@ void MainServer::receiveData()
             viewerSocket->write(sendWaitData.toStdString().c_str());
 
             //정연이쪽에 파일보내줌
-            sendFileFlag = 1;
-            sendFile();
+            //sendFileFlag = 1;
+            //sendFile();
 
 
         }
@@ -820,8 +840,8 @@ void MainServer::receiveData()
                             "VALUES(:report_no, :patient_no, :dentist_no, :report_date, :report_note)");
 
             query4->bindValue(":report_no", makeReportNo());    //오류있는듯 P00001 대신 R00001대야함
-            query4->bindValue(":patient_no", data.split("|")[0]);
-            query4->bindValue(":dentist_no", data.split("|")[2]);
+            query4->bindValue(":patient_no", id);
+            query4->bindValue(":dentist_no", data.split("|")[1]);
             query4->bindValue(":report_date", data.split("|")[3]);
             query4->bindValue(":report_note", data.split("|")[4]);
             query4->exec();
