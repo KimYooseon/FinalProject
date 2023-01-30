@@ -248,10 +248,14 @@ qDebug("%d", __LINE__);
 
     //정연이
     else if(sendFileFlag==1)
+
     {
         qDebug() << "goonsend 정연이쪽으로 파일!!!";
         viewerFileSocket->write(outBlock);
     }
+
+        viewerFileSocket->write(outBlock);
+
 qDebug("%d", __LINE__);
     if (byteToWrite == 0) {                 // 전송이 완료되었을 때(이제 더이상 남은 파일 크기가 없을 때)
         qDebug("%d", __LINE__);
@@ -272,10 +276,14 @@ void MainServer::sendFile()
         connect(pmsFileSocket, SIGNAL(bytesWritten(qint64)), SLOT(goOnSend(qint64)));  //데이터를 보낼 준비가되면 다른 데이터를 보내고, 데이터를 다 보냈을 때는 데이터 전송을 끝냄
 //정연
     else if(sendFileFlag==1)
+
     {
         qDebug() << "sendFile 정연이쪽으로 파일!!!";
         connect(viewerFileSocket, SIGNAL(bytesWritten(qint64)), SLOT(goOnSend(qint64)));
     }
+
+        connect(viewerFileSocket, SIGNAL(bytesWritten(qint64)), SLOT(goOnSend(qint64)));
+
 qDebug("%d", __LINE__);
     loadSize = 0;
     byteToWrite = 0;
