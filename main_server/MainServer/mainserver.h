@@ -104,6 +104,9 @@ private:
 
     int sendFileFlag = 0; //0이면 pms로, 1이면 viewer
 
+
+    int faceFlag = 0; // 0일 때는 face이미지 전송, 1일 때는 촬영이미지 전송
+
 signals:
     void sendNewPID(QString);
 

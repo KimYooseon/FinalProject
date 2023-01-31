@@ -261,12 +261,23 @@ void MainServer::goOnSend(qint64 numBytes)
         //file->flush();
         file->close();
         delete file;
+
+        //촬영이미지도 전송
+        if (faceFlag == 1)
+        {
+            faceFlag = 0 ;  //촬영 이미지를 계속해서 전송하도록 만들지 않기 위해 0으로 바꿔줌
+            sendFile();
+        }
+        //얼굴이미지 전송했으니 return / 촬영이미지 전송 다 끝난 후 return
+        else if (faceFlag == 0)
+            return;
     }
 
 }
 
 void MainServer::sendFaceImage()
 {
+    faceFlag = 1; //얼굴 이미지 전송 후 촬영이미지도 전송할 것
     qDebug("^^^^^^^^^^^^^^^^^^^^^^^^^^");
     qDebug() << currentPID;
     connect(pmsFileSocket, SIGNAL(bytesWritten(qint64)), SLOT(goOnSend(qint64)));

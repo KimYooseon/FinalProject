@@ -30,6 +30,8 @@ NetworkManager::NetworkManager(QObject *parent)
     //file_flag = connectToFileHost("127.0.0.1");
 
 //    connect(fileSocket, SIGNAL(readyRead()), this, SLOT(receiveFile()));
+
+    //얼굴 이미지를 먼저 보내도록 connect, 이후 얼굴 사진이 다 connect되면 fileSocket과 receiveFile을 연결
     connect(fileSocket, SIGNAL(readyRead()), this, SLOT(receiveFaceImage()));
 
     if(fileSocket->waitForConnected())
