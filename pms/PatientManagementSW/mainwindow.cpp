@@ -64,7 +64,7 @@ MainWindow::MainWindow(QWidget *parent)
     //검색될 때 관련 이미지를 불러올 수 있도록 pid를 전송
     //connect(networkManager, SIGNAL(sendSearchResult(QString, QString)), imageManager, SLOT(PSEDataToImgManager(QString, QString)));
     connect(networkManager, SIGNAL(PSEDataInNET(QString)), imageManager, SLOT(PSEDataSended(QString)));
-
+    connect(networkManager, SIGNAL(PSEDataInNET(QString)), patientInfoManager, SLOT(faceImageSended(QString)));
 
     connect(patientInfoManager, SIGNAL(sendDelData(QString)), networkManager, SLOT(newDataSended(QString)));
     //connect(patientInfoManager, SIGNAL(sendWaitInfo(QString, QString)), patientStatusManager, SLOT(waitInfoSended(QString, QString)));

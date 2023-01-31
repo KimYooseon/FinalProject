@@ -10,7 +10,7 @@ PatientInfoManager::PatientInfoManager(QWidget *parent) :
     ui->clientInfoTableWidget->setColumnWidth(0,285);
 
     pixmap = new QPixmap();
-    pixmap->load("./PatientFace/default.png");
+    pixmap->load("./Face/default.png");
     pixmap->scaled(200,180,Qt::IgnoreAspectRatio);
 
     ui->patientFace->setPixmap(pixmap->scaled(ui->patientFace->size(), Qt::KeepAspectRatio, Qt::SmoothTransformation));
@@ -184,12 +184,28 @@ void PatientInfoManager::on_modifyPushButton_clicked()
     //emit modifyPInfo(pid, textData, sendData); //수정된 정보들 보내줘야 함
 }
 
-void PatientInfoManager::byteArraySended(QPixmap &pix)
-{
+//void PatientInfoManager::byteArraySended(QPixmap &pix)
+//{
 //    qDebug("%d", __LINE__);
 //    ui->patientFace->setPixmap(pix.scaledToHeight(ui->patientFace->height()));
 
-////    QPixmap *pix = new QPixmap(QSize(400, 300));
-////    pix->loadFromData(*byteArray);
-////    ui->patientFace->setPixmap(*pix);
+//    QPixmap *pix = new QPixmap(QSize(400, 300));
+//    pix->loadFromData(*byteArray);
+//    ui->patientFace->setPixmap(*pix);
+//}
+
+void PatientInfoManager::faceImageSended(QString id)
+{
+    qDebug()<< id;
+    pid = id;
+
+    pixmap = new QPixmap();
+    pixmap->load(QString("./Face/%1.png").arg(pid));
+    pixmap->scaled(200,180,Qt::IgnoreAspectRatio);
+
+    ui->patientFace->setPixmap(pixmap->scaled(ui->patientFace->size(), Qt::KeepAspectRatio, Qt::SmoothTransformation));
+
+
+
+
 }

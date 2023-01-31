@@ -86,7 +86,9 @@ void NetworkManager::receiveFaceImage()
         QFileInfo info(fileName);
         currentPID = info.fileName();
 
-        QDir dir(QString("./Face/%1").arg(currentPID.first(6)));   //ex.P00001
+        //QDir dir(QString("./Face/%1").arg(currentPID.first(6)));   //ex.P00001
+        QDir dir(QString("./Face"));
+
         if (!dir.exists())
             dir.mkpath(".");
 

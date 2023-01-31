@@ -182,7 +182,7 @@ void MainServer::receiveFile()
         file->close();
         delete file;
 qDebug("%d", __LINE__);
-        sendFile();
+        //sendFile();
 qDebug("%d", __LINE__);
     }
 
@@ -234,13 +234,17 @@ qDebug("%d", __LINE__);
 
 void MainServer::goOnSend(qint64 numBytes)
 {
-    qDebug() <<byteToWrite;
+    numBytes=40;
+
+    //qDebug() << "byteToWrite" << byteToWrite;
+   // qDebug() << "numBytes" <<numBytes;
     outBlock.clear();
     /*파일의 전체 크기에서 numBytes씩만큼 나누어 전송*/
     byteToWrite -= numBytes; // 데이터 사이즈를 유지
 
-qDebug() << file->size();
     outBlock = file->read(qMin(byteToWrite, numBytes));
+    //qDebug() <<"filepos: " << file->pos();    //파일 위치는 문제없음
+   // qDebug() << "outBlock.size()"<<outBlock.size();
 
     if(sendFileFlag==0)
         pmsFileSocket->write(outBlock);
@@ -252,17 +256,20 @@ qDebug() << file->size();
 
 
     if (byteToWrite == 0) {                 // 전송이 완료되었을 때(이제 더이상 남은 파일 크기가 없을 때)
-        qDebug("%d", __LINE__);
-        qDebug("File sending completed!");
-        file->flush();
+       // qDebug("%d", __LINE__);
+        //qDebug("File sending completed!");
+        //file->flush();
+        file->close();
+        delete file;
     }
+
 }
 
 void MainServer::sendFaceImage()
 {
     qDebug("^^^^^^^^^^^^^^^^^^^^^^^^^^");
     qDebug() << currentPID;
-//    connect(pmsFileSocket, SIGNAL(bytesWritten(qint64)), SLOT(goOnSend(qint64)));
+    connect(pmsFileSocket, SIGNAL(bytesWritten(qint64)), SLOT(goOnSend(qint64)));
 
     loadSize = 0;
     byteToWrite = 0;
@@ -698,11 +705,12 @@ void MainServer::receiveData()
 
 
             sendFileFlag = 0;
-            sendFile();
+            //sendFile();
 
             qDebug() << "&&&&&&&&&&&";
 
             sendFaceImage();
+
 
 
             //this->loadData();
@@ -972,22 +980,19 @@ void MainServer::loadData()
         query2->exec("INSERT INTO dentist VALUES ('D00002', '안다미로', '남성', '010-8765-4321')");
         query2->exec("INSERT INTO dentist VALUES ('D00003', '박병규', '남성', '010-3456-7890')");
 
-        
+
         
         query3= new QSqlQuery(db);
         query3->exec("CREATE TABLE IF NOT EXISTS image(image_no VARCHAR(10) Primary Key, patient_no VARCHAR(10) NOT NULL,"
-                     "dentist_no VARCHAR(10) NOT NULL, modality VARCHAR(10) NOT NULL, bodypart_examined VARCHAR(30) NOT NULL,"
-                     "image_date VARCHAR(15) NOT NULL, image_path varchar(300) NOT NULL);");
+                     "type VARCHAR(10) NOT NULL, image_date VARCHAR(15) NOT NULL, image_path varchar(300) NOT NULL);");
         imageModel = new QSqlTableModel(this, db);
         imageModel->setTable("image");
         imageModel->select();
         imageModel->setHeaderData(0, Qt::Horizontal, tr("Image No"));
         imageModel->setHeaderData(1, Qt::Horizontal, tr("Patient No"));
-        imageModel->setHeaderData(2, Qt::Horizontal, tr("Dentist No"));
-        imageModel->setHeaderData(3, Qt::Horizontal, tr("Modality"));
-        imageModel->setHeaderData(4, Qt::Horizontal, tr("Body Part"));
-        imageModel->setHeaderData(5, Qt::Horizontal, tr("Image Date"));
-        imageModel->setHeaderData(6, Qt::Horizontal, tr("Image Path"));
+        imageModel->setHeaderData(2, Qt::Horizontal, tr("Type"));
+        imageModel->setHeaderData(3, Qt::Horizontal, tr("Image Date"));
+        imageModel->setHeaderData(4, Qt::Horizontal, tr("Image Path"));
         ui->imageTableView->setModel(imageModel);
         
         query4= new QSqlQuery(db);
@@ -1012,18 +1017,24 @@ void MainServer::loadData()
 
 
         
+//        query5= new QSqlQuery(db);
+//        query5->exec("CREATE TABLE IF NOT EXISTS image_relation(report_no VARCHAR(10), image_no VARCHAR(10), CONSTRAINT relation Primary Key(report_no, image_no));");
+//        imageRelationModel = new QSqlTableModel(this, db);
+//        imageRelationModel->setTable("image_relation");
+//        imageRelationModel->select();
+//        imageRelationModel->setHeaderData(0, Qt::Horizontal, tr("Report No"));
+//        imageRelationModel->setHeaderData(1, Qt::Horizontal, tr("Image No"));
+//        ui->imageRelationTableView->setModel(imageRelationModel);
+        
+        
         query5= new QSqlQuery(db);
-        query5->exec("CREATE TABLE IF NOT EXISTS image_relation(report_no VARCHAR(10), image_no VARCHAR(10), CONSTRAINT relation Primary Key(report_no, image_no));");
-        imageRelationModel = new QSqlTableModel(this, db);
-        imageRelationModel->setTable("image_relation");
-        imageRelationModel->select();
-        imageRelationModel->setHeaderData(0, Qt::Horizontal, tr("Report No"));
-        imageRelationModel->setHeaderData(1, Qt::Horizontal, tr("Image No"));
-        ui->imageRelationTableView->setModel(imageRelationModel);
-        
-        
-        
-        
+        query5->exec("CREATE TABLE IF NOT EXISTS faceImage(patient_no VARCHAR(10) NOT NULL Primary Key, image_path varchar(300) NOT NULL);");
+        faceModel = new QSqlTableModel(this, db);
+        faceModel->setTable("faceImage");
+        faceModel->select();
+        faceModel->setHeaderData(0, Qt::Horizontal, tr("Patient No"));
+        faceModel->setHeaderData(1, Qt::Horizontal, tr("Image Path"));
+        ui->faceImageTableView->setModel(faceModel);
         
         
         

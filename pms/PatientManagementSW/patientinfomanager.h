@@ -42,7 +42,9 @@ private slots:
     void inWaitListSlot(int);
 
 //    void byteArraySended(QByteArray*);
-    void byteArraySended(QPixmap&);
+    //void byteArraySended(QPixmap&);
+
+    void faceImageSended(QString);
 
 signals:
     void sendSearchData(QString);

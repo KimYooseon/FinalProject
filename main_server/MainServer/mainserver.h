@@ -37,7 +37,7 @@ private slots:
 private slots:
     void sendDataToClient(QString);
 
-    void goOnSend(qint64 numBytes);
+    void goOnSend(qint64);
     void sendFile();
 
     void sendFaceImage();
@@ -75,7 +75,7 @@ private:
     QSqlTableModel *dentistModel;
     QSqlTableModel *imageModel;
     QSqlTableModel *reportModel;
-    QSqlTableModel *imageRelationModel;
+    QSqlTableModel *faceModel;
 
     bool fd_flag = false;
     bool send_flag = false;
