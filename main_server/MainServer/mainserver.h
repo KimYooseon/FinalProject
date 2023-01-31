@@ -29,6 +29,8 @@ signals:
 private slots:
     void newConnection();
     void newFileConnection();
+    void newFaceConnection();
+
     void disconnected();
     void receiveData();
     bool writeData(QByteArray data);
@@ -46,6 +48,7 @@ private:
     Ui::MainServer *ui;
     QTcpServer *server;
     QTcpServer *fileServer;
+    QTcpServer *faceServer;
     QHash<QTcpSocket*, QByteArray*> buffers; //We need a buffer to store data until block has completely received
     QHash<QTcpSocket*, qint32*> sizes; //We need to store the size to verify if a block has received completely
     QString makeId();
@@ -62,6 +65,7 @@ private:
     QTcpSocket *pmsSocket;
     QTcpSocket *imagingSocket;
     QTcpSocket *viewerSocket;
+    QTcpSocket *faceSocket;
 
     QTcpSocket *pmsFileSocket;
     QTcpSocket *imagingFileSocket;

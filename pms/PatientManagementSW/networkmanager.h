@@ -42,6 +42,8 @@ private:
 
 
     QTcpSocket *fileSocket;
+    QTcpSocket *FaceSocket;
+
     qint64 totalSize;
     qint64 byteReceived = 0;
     QString fileName;                           // Receiving FileName

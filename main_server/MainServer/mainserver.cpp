@@ -28,14 +28,18 @@ MainServer::MainServer(QWidget *parent) :
 
 
     fileServer = new QTcpServer(this);
-    //    QTcpSocket* fileSocket = dynamic_cast<QTcpSocket*>(sender());
-    //    QTcpSocket* pmsFileSocket = dynamic_cast<QTcpSocket*>(sender());
-    //    QTcpSocket* imagingFileSocket = dynamic_cast<QTcpSocket*>(sender());
-    //    QTcpSocket* viewerFileSocket = dynamic_cast<QTcpSocket*>(sender());
     QString fileSocket_data = QString("FileServer Listening: %1\n").arg(fileServer->listen(QHostAddress::Any, 8001) ? "true" : "false");
     connect(fileServer, SIGNAL(newConnection()), this, SLOT(newFileConnection()));
     ui->textEdit->append(fileSocket_data);
 
+
+
+    faceServer = new QTcpServer(this);
+    QString faceSocket_data = QString("FaceServer Listening: %1\n").arg(faceServer->listen(QHostAddress::Any, 8002) ? "true" : "false");
+
+    connect(faceServer, SIGNAL(newConnection()), this, SLOT(newFaceConnection()));
+
+    ui->textEdit->append(faceSocket_data);
 
     this->loadData();
     
@@ -51,6 +55,7 @@ MainServer::~MainServer()
 
 void MainServer::newConnection()
 {
+    qDebug("%d", __LINE__);
     QTcpSocket* socket = (QTcpSocket*)(sender());
     while (server->hasPendingConnections())
     {
@@ -67,48 +72,24 @@ void MainServer::newConnection()
 
 void MainServer::newFileConnection()
 {
-    qDebug("%d", __LINE__);
     QTcpSocket* fileSocket = fileServer->nextPendingConnection();           //receivedSocket에 fileServer에서 저장해두었던 다음 보류중인 연결을 연결해준다
     connect(fileSocket, SIGNAL(readyRead()), this, SLOT(receiveFile()));     //받은 소켓에서 정보를 읽어 serverform에서 파일 전송이 가능하도록 만듦
     qDebug("new file connection");
     qDebug() << fileSocket->readAll().toStdString().c_str();
-    qDebug("%d", __LINE__);
-    //    qDebug("can transfer files");
-
-    //    QString event = saveData.split("<CR>")[0];
-    //    QString id = saveData.split("<CR>")[1];
-    //    QString data = saveData.split("<CR>")[2];
-
-    //    qDebug() << "이벤트: " << event;
-
-    //    if(event == "CNT"){
-
-    //        /*어떤 모듈과 연관이 있는 소켓인지 알 수 있도록 map에 연결해 저장하는 부분*/
-    //        if(id == "PMS")
-    //        {
-    //            pmsFileSocket = dynamic_cast<QTcpSocket*>(sender());
-    //            fileSocketMap.insert(pmsFileSocket, "PMS");
-    //            qDebug() << "pmsSocket ready";
-    //        }
-    //        else if(id == "IMG")
-    //        {
-    //            imagingSocket = dynamic_cast<QTcpSocket*>(sender());
-    //            fileSocketMap.insert(imagingSocket, "IMG");
-    //            qDebug() << "imagingSocket ready";
-    //        }
-    //        else if(id == "VEW")
-    //        {
-    //            viewerSocket = dynamic_cast<QTcpSocket*>(sender());
-    //            fileSocketMap.insert(viewerSocket, "VEW");
-    //            qDebug() << "viewerSocket ready";
-    //        }
-    //    }
-
-
-    //    connect(pmsFileSocket, SIGNAL(readyRead()), this, SLOT(receiveFile()));
-    //    connect(imagingSocket, SIGNAL(readyRead()), this, SLOT(receiveFile()));
-    //    connect(viewerSocket, SIGNAL(readyRead()), this, SLOT(receiveFile()));
 }
+
+void MainServer::newFaceConnection()
+{
+
+    QTcpSocket* faceSocket = faceServer->nextPendingConnection();           //receivedSocket에 fileServer에서 저장해두었던 다음 보류중인 연결을 연결해준다
+    connect(faceSocket, SIGNAL(readyRead()), this, SLOT(receiveFile()));     //받은 소켓에서 정보를 읽어 serverform에서 파일 전송이 가능하도록 만듦
+    qDebug("new face connection");
+    qDebug() << "&&&&&&faceSocket readALL: " << faceSocket->readAll().toStdString().c_str();
+}
+
+
+
+
 
 void MainServer::receiveFile()
 {
@@ -132,6 +113,10 @@ void MainServer::receiveFile()
             qDebug("%d: RECEIVED VIEWER SOCKET", __LINE__);
             qDebug() << "viewerFileSocket saveData: " << QString(arr);
             viewerFileSocket =socket;
+        }else if(id == "FAC") {
+            qDebug("%d: RECEIVED FACE SOCKET", __LINE__);
+            qDebug() << "FaceSocket saveData: " << QString(arr);
+            faceSocket =socket;
         }
         return;
     }
@@ -181,9 +166,9 @@ void MainServer::receiveFile()
         totalSize = 0;
         file->close();
         delete file;
-qDebug("%d", __LINE__);
+
         //sendFile();
-qDebug("%d", __LINE__);
+
     }
 
 
@@ -237,14 +222,14 @@ void MainServer::goOnSend(qint64 numBytes)
     numBytes=40;
 
     //qDebug() << "byteToWrite" << byteToWrite;
-   // qDebug() << "numBytes" <<numBytes;
+    // qDebug() << "numBytes" <<numBytes;
     outBlock.clear();
     /*파일의 전체 크기에서 numBytes씩만큼 나누어 전송*/
     byteToWrite -= numBytes; // 데이터 사이즈를 유지
 
     outBlock = file->read(qMin(byteToWrite, numBytes));
     //qDebug() <<"filepos: " << file->pos();    //파일 위치는 문제없음
-   // qDebug() << "outBlock.size()"<<outBlock.size();
+    // qDebug() << "outBlock.size()"<<outBlock.size();
 
     if(sendFileFlag==0)
         pmsFileSocket->write(outBlock);
@@ -256,7 +241,7 @@ void MainServer::goOnSend(qint64 numBytes)
 
 
     if (byteToWrite == 0) {                 // 전송이 완료되었을 때(이제 더이상 남은 파일 크기가 없을 때)
-       // qDebug("%d", __LINE__);
+        //
         //qDebug("File sending completed!");
         //file->flush();
         file->close();
@@ -322,7 +307,7 @@ void MainServer::sendFile()
 
     if(sendFileFlag==0)
         connect(pmsFileSocket, SIGNAL(bytesWritten(qint64)), SLOT(goOnSend(qint64)));  //데이터를 보낼 준비가되면 다른 데이터를 보내고, 데이터를 다 보냈을 때는 데이터 전송을 끝냄
-//정연
+    //정연
     else if(sendFileFlag==1)
     {
         qDebug() << "sendFile 정연이쪽으로 파일!!!";
@@ -337,7 +322,7 @@ void MainServer::sendFile()
     //QString filename = id; //여기까지함
 
 
-qDebug() << currentPID;
+    qDebug() << currentPID;
     if(currentPID.length()) {
 
         file = new QFile(QString("./Image/%1/%2").arg(currentPID.first(6)).arg(currentPID));
@@ -361,7 +346,7 @@ qDebug() << currentPID;
 
         if(sendFileFlag==0)
             pmsFileSocket->write(outBlock); // Send the read file to the socket    //서버로 보내줌
-//정연
+        //정연
         else if(sendFileFlag==1)
             viewerFileSocket->write(outBlock);
 
@@ -469,6 +454,7 @@ void MainServer::receiveData()
                 viewerSocket = dynamic_cast<QTcpSocket*>(sender());
                 qDebug() << "viewerSocket ready";
             }
+
         }
         else if(event == "VLG")
         {
@@ -759,7 +745,7 @@ void MainServer::receiveData()
             qDebug() << "뷰어쪽으로 보내줄 진료대기환자 정보(촬영SW에는 안 보내줌): " + event + "<CR>" + id + "<CR>" + data.split("|")[0];
             //socket->write(saveData.toStdString().c_str());  //이 정보는 촬영SW와 뷰어SW쪽으로 보내져야 함.(지금 써져있는 socket은 임시..
             QString sendWaitData = event + "<CR>" + id + "<CR>" + data.split("|")[0];
-            qDebug("%d", __LINE__);
+
             //이거 고치기 socket->write(sendWaitData.toStdString().c_str());
 
 
@@ -777,40 +763,40 @@ void MainServer::receiveData()
         /*촬영 SW 이벤트*/
         else if(event == "IPR")     //환자 준비: IPR(patient ready) [받는 정보: 이벤트, ID / 보낼 정보: 이벤트, ID, 이름, 생년월일, 성별]
         {
-            qDebug("%d", __LINE__);
+
             QString sendData ="IPR<CR>";
             sendData = sendData + id + "<CR>";
-            qDebug("%d", __LINE__);
+
 
             query->exec("select * from patient where patient_no = '" + id + "'");
-            qDebug("%d", __LINE__);
+
             QSqlRecord rec = query->record();
-            qDebug("%d", __LINE__);
+
             qDebug() << "Number of columns: " << rec.count();
 
             //와일문보기
             while (query->next()){
-                qDebug("%d", __LINE__);
+
                 for(int i = 1; i<4 ; i++)
                 {
-                    qDebug("%d", __LINE__);
+
                     //                    if(i == 0)
                     //                    {
-                    //                        qDebug("%d", __LINE__);
+                    //
                     //                        qDebug() << "i: " << i << "data: " << query->value(i).toString();
                     //                        QString data = query->value(i).toString() + "<CR>";
                     //                        sendData += data;
                     //                        qDebug() << "sendData: " << sendData;
-                    //                        qDebug("%d", __LINE__);
+                    //
                     //                    }
                     //                    else
                     //                    {
-                    qDebug("%d", __LINE__);
+
                     qDebug() << "i: " << i << "data: " << query->value(i).toString();
                     QString data = query->value(i).toString() + "|";
                     sendData += data;
                     qDebug() << "sendData: " << sendData;
-                    qDebug("%d", __LINE__);
+
                     //                    }
                 }
 
@@ -879,24 +865,24 @@ void MainServer::receiveData()
 
             QString sendData ="VTS<CR>";
             sendData = sendData + id + "<CR>";
-            qDebug("%d", __LINE__);
+
 
             query->exec("select * from patient where patient_no = '" + id + "'");
-            qDebug("%d", __LINE__);
+
             QSqlRecord rec = query->record();
-            qDebug("%d", __LINE__);
+
             qDebug() << "Number of columns: " << rec.count();
 
             //와일문보기
             while (query->next()){
-                qDebug("%d", __LINE__);
+
                 for(int i = 1; i<4 ; i++)
                 {
                     qDebug() << "i: " << i << "data: " << query->value(i).toString();
                     QString data = query->value(i).toString() + "|";
                     sendData += data;
                     qDebug() << "sendData: " << sendData;
-                    qDebug("%d", __LINE__);
+
                     //
                 }
                 sendData += query->value(6).toString();
@@ -1028,14 +1014,14 @@ void MainServer::loadData()
 
 
         
-//        query5= new QSqlQuery(db);
-//        query5->exec("CREATE TABLE IF NOT EXISTS image_relation(report_no VARCHAR(10), image_no VARCHAR(10), CONSTRAINT relation Primary Key(report_no, image_no));");
-//        imageRelationModel = new QSqlTableModel(this, db);
-//        imageRelationModel->setTable("image_relation");
-//        imageRelationModel->select();
-//        imageRelationModel->setHeaderData(0, Qt::Horizontal, tr("Report No"));
-//        imageRelationModel->setHeaderData(1, Qt::Horizontal, tr("Image No"));
-//        ui->imageRelationTableView->setModel(imageRelationModel);
+        //        query5= new QSqlQuery(db);
+        //        query5->exec("CREATE TABLE IF NOT EXISTS image_relation(report_no VARCHAR(10), image_no VARCHAR(10), CONSTRAINT relation Primary Key(report_no, image_no));");
+        //        imageRelationModel = new QSqlTableModel(this, db);
+        //        imageRelationModel->setTable("image_relation");
+        //        imageRelationModel->select();
+        //        imageRelationModel->setHeaderData(0, Qt::Horizontal, tr("Report No"));
+        //        imageRelationModel->setHeaderData(1, Qt::Horizontal, tr("Image No"));
+        //        ui->imageRelationTableView->setModel(imageRelationModel);
         
         
         query5= new QSqlQuery(db);

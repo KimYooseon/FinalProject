@@ -29,20 +29,31 @@ NetworkManager::NetworkManager(QObject *parent)
     fileSocket->connectToHost("127.0.0.1", 8001);
     //file_flag = connectToFileHost("127.0.0.1");
 
-//    connect(fileSocket, SIGNAL(readyRead()), this, SLOT(receiveFile()));
+    connect(fileSocket, SIGNAL(readyRead()), this, SLOT(receiveFile()));
 
     //얼굴 이미지를 먼저 보내도록 connect, 이후 얼굴 사진이 다 connect되면 fileSocket과 receiveFile을 연결
-    connect(fileSocket, SIGNAL(readyRead()), this, SLOT(receiveFaceImage()));
+    //connect(fileSocket, SIGNAL(readyRead()), this, SLOT(receiveFaceImage()));
 
     if(fileSocket->waitForConnected())
         fileSocket->write("CNT<CR>PMS<CR>NULL");
     else
         qDebug()<<("FileServer connect failed\n");
 
+    qDebug() << "%%%%%%%%%%%%%%%%%%%%%%%%";
+
+    FaceSocket = new QTcpSocket(this);
+    FaceSocket->connectToHost("127.0.0.1", 8002);
+    //얼굴 이미지를 먼저 보내도록 connect, 이후 얼굴 사진이 다 connect되면 fileSocket과 receiveFile을 연결
+    connect(FaceSocket, SIGNAL(readyRead()), this, SLOT(receiveFaceImage()));
+    if(FaceSocket->waitForConnected())
+    {
+        FaceSocket->write("CNT<CR>FAC<CR>Face");
+        qDebug() << "FaceSocket connected";
+    }
+    else
+        qDebug()<<"FaceSocket connect failed\n";
 
 
-    //QByteArray sendFileTest = connectFileData.toStdString().c_str();
-    //fileSocket->write(sendFileTest);
 }
 
 
