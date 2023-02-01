@@ -23,32 +23,33 @@ public:
     void loadData();
     void updateRecentData();
 
-signals:
-    //void dataReceived(QByteArray);
 
 private slots:
     void newConnection();
     void newFileConnection();
-    void newFaceConnection();
+
 
     void disconnected();
     void receiveData();
     bool writeData(QByteArray data);
     void receiveFile();
 
+
+
+
 private slots:
     void sendDataToClient(QString);
 
     void goOnSend(qint64);
+
     void sendFile();
 
-    void sendFaceImage();
 
 private:
     Ui::MainServer *ui;
     QTcpServer *server;
     QTcpServer *fileServer;
-    QTcpServer *faceServer;
+
     QHash<QTcpSocket*, QByteArray*> buffers; //We need a buffer to store data until block has completely received
     QHash<QTcpSocket*, qint32*> sizes; //We need to store the size to verify if a block has received completely
     QString makeId();
@@ -65,7 +66,7 @@ private:
     QTcpSocket *pmsSocket;
     QTcpSocket *imagingSocket;
     QTcpSocket *viewerSocket;
-    QTcpSocket *faceSocket;
+
 
     QTcpSocket *pmsFileSocket;
     QTcpSocket *imagingFileSocket;
@@ -79,20 +80,16 @@ private:
     QSqlTableModel *dentistModel;
     QSqlTableModel *imageModel;
     QSqlTableModel *reportModel;
-    QSqlTableModel *faceModel;
+
 
     bool fd_flag = false;
     bool send_flag = false;
 
     QMap<QTcpSocket *, QString> sk; //socket
-    //QMap<QTcpSocket *, QString> fsk; //file socket
-
-
 
     qint64 totalSize;
     qint64 byteReceived = 0;
     QFile* file;
-
 
     QByteArray inBlock;
     QString fileName;                           // Receiving FileName
@@ -107,9 +104,10 @@ private:
     QString saveFileData;
 
     int sendFileFlag = 0; //0이면 pms로, 1이면 viewer
+    QString type;
 
 
-    int faceFlag = 0; // 0일 때는 face이미지 전송, 1일 때는 촬영이미지 전송
+    QByteArray allFile;
 
 signals:
     void sendNewPID(QString);

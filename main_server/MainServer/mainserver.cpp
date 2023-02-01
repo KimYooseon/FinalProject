@@ -10,8 +10,6 @@
 
 //mvc패턴 적용시키기 위해 정보 변경&삭제시 뷰어와 이미징 모듈에 패킷 보내줄 것 ex. PMO<CR>P00001<CR>NULL
 
-static inline qint32 ArrayToInt(QByteArray source);
-
 MainServer::MainServer(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MainServer)
@@ -32,19 +30,7 @@ MainServer::MainServer(QWidget *parent) :
     connect(fileServer, SIGNAL(newConnection()), this, SLOT(newFileConnection()));
     ui->textEdit->append(fileSocket_data);
 
-
-
-    faceServer = new QTcpServer(this);
-    QString faceSocket_data = QString("FaceServer Listening: %1\n").arg(faceServer->listen(QHostAddress::Any, 8002) ? "true" : "false");
-
-    connect(faceServer, SIGNAL(newConnection()), this, SLOT(newFaceConnection()));
-
-    ui->textEdit->append(faceSocket_data);
-
     this->loadData();
-    
-
-    //connect(this, SIGNAL(sendNewPID(QString)), SLOT(sendDataToClient(QString))); //구현 다 한 후에 헤더에 선언하기
     
 }
 
@@ -59,7 +45,6 @@ void MainServer::newConnection()
     QTcpSocket* socket = (QTcpSocket*)(sender());
     while (server->hasPendingConnections())
     {
-        //QTcpSocket *socket = server->nextPendingConnection();
         socket = server->nextPendingConnection();
         connect(socket, SIGNAL(readyRead()), this, SLOT(receiveData()));
         connect(socket, SIGNAL(disconnected()), this, SLOT(disconnected()));
@@ -78,30 +63,21 @@ void MainServer::newFileConnection()
     qDebug() << fileSocket->readAll().toStdString().c_str();
 }
 
-void MainServer::newFaceConnection()
-{
-
-    QTcpSocket* faceSocket = faceServer->nextPendingConnection();           //receivedSocket에 fileServer에서 저장해두었던 다음 보류중인 연결을 연결해준다
-    connect(faceSocket, SIGNAL(readyRead()), this, SLOT(receiveFile()));     //받은 소켓에서 정보를 읽어 serverform에서 파일 전송이 가능하도록 만듦
-    qDebug("new face connection");
-    qDebug() << "&&&&&&faceSocket readALL: " << faceSocket->readAll().toStdString().c_str();
-}
-
-
 
 
 
 void MainServer::receiveFile()
 {
-    //ex.CNT<CR>IMG<CR>NULL
+    //이미지 파일명: pid_type_date.bmp
 
+    //ex.CNT<CR>IMG<CR>NULL
     QTcpSocket *socket = dynamic_cast<QTcpSocket*>(sender());
 
     if (pmsFileSocket != socket && imagingFileSocket != socket && viewerFileSocket != socket) {
         QByteArray arr = socket->readAll();
         QString id = QString(arr).split("<CR>")[1];
         if (id == "IMG") {
-            qDebug("%d: ididididididi", __LINE__);
+            qDebug("%d: RECEIVED IMG SOCKET", __LINE__);
             imagingFileSocket = socket;
         }
         else if (id == "PMS") {
@@ -113,37 +89,31 @@ void MainServer::receiveFile()
             qDebug("%d: RECEIVED VIEWER SOCKET", __LINE__);
             qDebug() << "viewerFileSocket saveData: " << QString(arr);
             viewerFileSocket =socket;
-        }else if(id == "FAC") {
-            qDebug("%d: RECEIVED FACE SOCKET", __LINE__);
-            qDebug() << "FaceSocket saveData: " << QString(arr);
-            faceSocket =socket;
         }
+
         return;
     }
 
-
-    //    saveFileData = QString(receiveFileData);
-    //    ui->textEdit->insertPlainText("FileData: " + saveFileData);
-    //    ui->textEdit->insertPlainText("\n");
-
     // Beginning File Transfer
     if (byteReceived == 0) {                                    // First Time(Block) , var byteReceived is always zero
-        checkFileName = fileName;                               // 다음 패킷부터 파일이름으로 구분하기 위해 첫 패킷에서 보낸 파일이름을 임시로 저장
-
+//        checkFileName = fileName;                               // 다음 패킷부터 파일이름으로 구분하기 위해 첫 패킷에서 보낸 파일이름을 임시로 저장
+        qDebug() << "filename" << fileName;
         QDataStream in(imagingFileSocket);
         in.device()->seek(0);
-        in >> totalSize >> byteReceived >> fileName;
-        if(checkFileName == fileName) return;
+        in >> totalSize >> byteReceived >> currentPID >> type;
+//        if(checkFileName == fileName) return;
 
-        QFileInfo info(fileName);
-        currentPID = info.fileName();
 
-        QDir dir(QString("./Image/%1").arg(currentPID.first(6)));
+
+        qDebug() << "currentPID: " << currentPID;
+        qDebug() << "type: " << type;
+
+        QDir dir(QString("./Image/%1").arg(currentPID));
         if (!dir.exists())
             dir.mkpath(".");
 
-        //QFileInfo info(fileName);
-        QString currentFileName = dir.path() + "/" +info.fileName();
+
+        QString currentFileName = dir.path() + "/" + type + "_" + QDate::currentDate().toString("yyyyMMdd") + ".bmp";
 
 
 
@@ -151,7 +121,7 @@ void MainServer::receiveFile()
         file->open(QFile::WriteOnly);
 
     } else {
-        if(checkFileName == fileName) return;
+//        if(checkFileName == fileName) return;
         inBlock = imagingFileSocket->readAll();
 
         byteReceived += inBlock.size();
@@ -166,195 +136,257 @@ void MainServer::receiveFile()
         totalSize = 0;
         file->close();
         delete file;
-
-        //sendFile();
-
     }
-
-
 
 }
 
-//void MainServer::receiveFile()
-//{
-//    QTcpSocket *socket = dynamic_cast<QTcpSocket*>(sender());
 
-//        // Beginning File Transfer
-//        if (byteReceived == 0) {        // First Time(Block) , var byteReceived is always zero
-//            checkFileName = fileName;
-//            QDataStream in(socket);
-//            in.device()->seek(0);
-//            in >> totalSize >> byteReceived >> fileName;
-//            if(checkFileName == fileName) return;   //이전의 파일이름과 같으면 그냥 return 함
-
-//            QDir dir(QString("image/%1/").arg(currentPID));
-//            if (!dir.exists())
-//                dir.mkpath(".");
-
-//            QFileInfo info(fileName);
-//            QString currentFileName = dir.path() + "/"+ info.fileName();
-//            qDebug() << info.fileName();
-//            qDebug() << currentFileName;
-//            file = new QFile(currentFileName);
-//            file->open(QFile::WriteOnly);
-//        } else {
-//            if(checkFileName == fileName) return;
-//            inBlock = socket->readAll();
-
-//            byteReceived += inBlock.size();
-//            file->write(inBlock);
-//            file->flush();
-//        }
-
-//        if (byteReceived == totalSize) {        // file sending is done
-//            qDebug() << QString("%1 receive completed").arg(fileName);
-//            inBlock.clear();
-//            byteReceived = 0;
-//            totalSize = 0;
-//            file->close();
-//            delete file;
-//        }
-
-//}
 
 void MainServer::goOnSend(qint64 numBytes)
 {
-    numBytes=40;
 
+    numBytes = 40;
     //qDebug() << "byteToWrite" << byteToWrite;
     // qDebug() << "numBytes" <<numBytes;
     outBlock.clear();
+
     /*파일의 전체 크기에서 numBytes씩만큼 나누어 전송*/
     byteToWrite -= numBytes; // 데이터 사이즈를 유지
 
     outBlock = file->read(qMin(byteToWrite, numBytes));
-    //qDebug() <<"filepos: " << file->pos();    //파일 위치는 문제없음
-    // qDebug() << "outBlock.size()"<<outBlock.size();
 
-    if(sendFileFlag==0)
+
+
+//    if(sendFileFlag==0)
         pmsFileSocket->write(outBlock);
-
-
-    //정연이
-    else if(sendFileFlag==1)
-        viewerFileSocket->write(outBlock);
+//    //정연이
+//    else if(sendFileFlag==1)
+//        viewerFileSocket->write(outBlock);
 
 
     if (byteToWrite == 0) {                 // 전송이 완료되었을 때(이제 더이상 남은 파일 크기가 없을 때)
-        //
-        //qDebug("File sending completed!");
-        //file->flush();
         file->close();
         delete file;
-
-        //촬영이미지도 전송
-        if (faceFlag == 1)
-        {
-            faceFlag = 0 ;  //촬영 이미지를 계속해서 전송하도록 만들지 않기 위해 0으로 바꿔줌
-            sendFile();
-        }
-        //얼굴이미지 전송했으니 return / 촬영이미지 전송 다 끝난 후 return
-        else if (faceFlag == 0)
-            return;
     }
 
 }
 
-void MainServer::sendFaceImage()
-{
-    faceFlag = 1; //얼굴 이미지 전송 후 촬영이미지도 전송할 것
-    qDebug("^^^^^^^^^^^^^^^^^^^^^^^^^^");
-    qDebug() << currentPID;
-    connect(pmsFileSocket, SIGNAL(bytesWritten(qint64)), SLOT(goOnSend(qint64)));
-
-    loadSize = 0;
-    byteToWrite = 0;
-    totalSize = 0;
-    outBlock.clear();
-
-    if(currentPID.length())
-    {
-        file =new QFile(QString("./Face/%1").arg(currentPID));
-        file->open(QFile::ReadOnly);
-
-        byteToWrite = totalSize = file->size(); // Data remained yet
-        loadSize = 1024; // Size of data per a block
-
-        QDataStream out(&outBlock, QIODevice::WriteOnly);
-        out << qint64(0) << qint64(0) << currentPID;
-
-        totalSize += outBlock.size();
-        byteToWrite += outBlock.size();
-
-        out.device()->seek(0);
-        out << totalSize << qint64(outBlock.size());
-
-        pmsFileSocket->write(outBlock); // Send the read file to the socket    //서버로 보내줌
-
-    }
-    qDebug() << QString("Sending image file %1").arg(currentPID);
-
-}
 
 
 void MainServer::sendFile()
 {
-    qDebug() << "***********************************";
-    qDebug() << saveFileData;
-    //QString event = saveFileData.split("<CR>")[0];
-    //QString id = saveFileData.split("<CR>")[1];
+
+        QDir dir(QString("./Image/%1").arg(currentPID));
+        QStringList filters;
+        filters << "*.png" << "*.jpg" << "*.bmp";
+        QFileInfoList fileInfoList = dir.entryInfoList(filters, QDir::Files | QDir::NoDotAndDotDot);
+        qDebug() << "폴더 안의 전체 파일 개수-fileInfoList.count(): " << fileInfoList.count();
 
 
-    if(sendFileFlag==0)
-        connect(pmsFileSocket, SIGNAL(bytesWritten(qint64)), SLOT(goOnSend(qint64)));  //데이터를 보낼 준비가되면 다른 데이터를 보내고, 데이터를 다 보냈을 때는 데이터 전송을 끝냄
-    //정연
-    else if(sendFileFlag==1)
-    {
-        qDebug() << "sendFile 정연이쪽으로 파일!!!";
-        connect(viewerFileSocket, SIGNAL(bytesWritten(qint64)), SLOT(goOnSend(qint64)));
-    }
-
-    loadSize = 0;
-    byteToWrite = 0;
-    totalSize = 0;
-    outBlock.clear();
-
-    //QString filename = id; //여기까지함
-
-
-    qDebug() << currentPID;
-    if(currentPID.length()) {
-
-        file = new QFile(QString("./Image/%1/%2").arg(currentPID.first(6)).arg(currentPID));
-        file->open(QFile::ReadOnly);
-
-        qDebug() << QString("file %1 is opened").arg(currentPID);
-
-        qDebug() <<"@@@@@@@@file->size(): " << file->size();
-
-        byteToWrite = totalSize = file->size(); // Data remained yet
-        loadSize = 1024; // Size of data per a block
 
         QDataStream out(&outBlock, QIODevice::WriteOnly);
-        out << qint64(0) << qint64(0) << currentPID;
+        for(int i = 0; i < fileInfoList.count(); i++)
+        {
+            QString currentFileName = dir.path() + "/" + fileInfoList.at(i).fileName();
+            qDebug() << currentFileName;
 
-        totalSize += outBlock.size();
-        byteToWrite += outBlock.size();
+            file = new QFile(currentFileName);
+            file->open(QFile::ReadOnly);
+            pmsFileSocket->write(file->readAll());
 
-        out.device()->seek(0);
-        out << totalSize << qint64(outBlock.size());
+            //파일 구분 =>이거 써도 allFile qDebug로 확인해보니 안 찍힘
+            //allFile.append("<CR>");
 
-        if(sendFileFlag==0)
-            pmsFileSocket->write(outBlock); // Send the read file to the socket    //서버로 보내줌
-        //정연
-        else if(sendFileFlag==1)
-            viewerFileSocket->write(outBlock);
-
-    }
-    qDebug() << QString("Sending file %1").arg(currentPID);
-
+            file->close();
+            pmsFileSocket->flush();
+        }
 
 }
+
+//void MainServer::sendFile()
+//{
+
+//        QDir dir(QString("./Image/%1").arg(currentPID));
+//        QStringList filters;
+//        filters << "*.png" << "*.jpg" << "*.bmp";
+//        QFileInfoList fileInfoList = dir.entryInfoList(filters, QDir::Files | QDir::NoDotAndDotDot);
+//        qDebug() << "폴더 안의 전체 파일 개수-fileInfoList.count(): " << fileInfoList.count();
+
+
+
+//        QDataStream out(&outBlock, QIODevice::WriteOnly);
+//        for(int i = 0; i < fileInfoList.count(); i++)
+//        {
+//            QString currentFileName = dir.path() + "/" + fileInfoList.at(i).fileName();
+//            qDebug() << currentFileName;
+
+//            file = new QFile(currentFileName);
+//            file->open(QFile::ReadOnly);
+//            allFile.append(file->readAll());
+
+//            //파일 구분 =>이거 써도 allFile qDebug로 확인해보니 안 찍힘
+//            //allFile.append("<CR>");
+
+//            file->close();
+//        }
+//        qDebug("%d", allFile.size());
+
+//        pmsFileSocket->write(allFile);
+//        qDebug() << pmsFileSocket->size();
+//        pmsFileSocket->flush();
+//        allFile.clear();
+//}
+
+
+//void MainServer::sendFile()
+//{
+//    qDebug() << saveFileData;
+//    //QString event = saveFileData.split("<CR>")[0];
+//    //QString id = saveFileData.split("<CR>")[1];
+
+
+//    if(sendFileFlag==0)
+//    {
+        //    }
+//    //정연
+//    else if(sendFileFlag==1)
+//    {
+//        qDebug() << "sendFile 정연이쪽으로 파일!!!";
+//        connect(viewerFileSocket, SIGNAL(bytesWritten(qint64)), SLOT(goOnSend(qint64)));
+//    }
+
+//    loadSize = 0;
+//    byteToWrite = 0;
+//    totalSize = 0;
+//    outBlock.clear();
+
+//    //QString filename = id; //여기까지함
+
+
+//    qDebug() << "((((((currentPID" << currentPID;    //ex. P00003
+//    QDir dir(QString("./Image/%1").arg(currentPID));
+//    QStringList filters;
+//    filters << "*.png" << "*.jpg" << "*.bmp";
+//    QFileInfoList fileInfoList = dir.entryInfoList(filters, QDir::Files | QDir::NoDotAndDotDot);
+//    qDebug() << "폴더 안의 전체 파일 개수-fileInfoList.count(): " << fileInfoList.count();
+
+
+
+//    QDataStream out(&outBlock, QIODevice::WriteOnly);
+
+
+//    for(int i = 0; i < fileInfoList.count(); i++)
+//    {
+//        QString currentFileName = dir.path() + "/" + fileInfoList.at(i).fileName();
+//        qDebug() << currentFileName;
+
+//        file = new QFile(currentFileName);
+//        file->open(QFile::ReadOnly);
+
+//        allFile.append(file->readAll());
+
+//        allFile.append("<NEXT>");
+//        qDebug() << "'''''''''''''allFile Size: " << allFile.size();
+
+//    }
+
+//    while(1)
+//    {
+//        goOnSend(40);
+
+//        if(byteToWrite <= 0)
+//            return;
+//    }
+
+//    pmsFileSocket->write(allFile);
+
+
+
+//        qDebug() << "***********************byteToWrite: " <<byteToWrite;
+//        totalSize += byteToWrite;
+
+//        out << qint64(0) << qint64(0) << currentFileName;
+
+
+//        totalSize += outBlock.size();    //첫번째 qint;
+//        byteToWrite += outBlock.size();  //두번째 qint;
+
+//        out.device()->seek(0);
+//        out << totalSize << qint64(outBlock.size());
+//    }
+
+//    qDebug() << "totalSize" << totalSize;
+
+
+
+
+
+
+
+
+
+
+//        byteToWrite = totalSize = file->size();
+//        loadSize = 1024;
+
+//        QDataStream out(&outBlock, QIODevice::WriteOnly);
+
+//        out << qint64(0) << qint64(0) << currentFileName;
+//        totalSize += outBlock.size();
+//        byteToWrite += outBlock.size();
+
+//        out.device()->seek(0);
+//        out << totalSize << qint64(outBlock.size());
+
+//        if(sendFileFlag==0){
+//            pmsFileSocket->write(outBlock); // Send the read file to the socket    //서버로 보내줌
+//        }
+//        //정연
+//        else if(sendFileFlag==1)
+//            viewerFileSocket->write(outBlock);
+
+//        qDebug() << QString("Sending file %1").arg(currentFileName);
+//    }
+
+//}
+
+
+
+    //    if(currentPID.length()) {
+    //        file = new QFile(QString("./Image/%1/%2").arg(currentPID.first(6)).arg(currentPID));
+    //        qDebug() << "SSSSSSSSS" << file->fileName();
+    //        file->open(QFile::ReadOnly);
+
+    //        qDebug() << QString("file %1 is opened").arg(currentPID);
+
+    //        qDebug() <<"@@@@@@@@file->size(): " << file->size();
+
+    //        byteToWrite = totalSize = file->size(); // Data remained yet
+
+    //        loadSize = 1024; // Size of data per a block
+
+    //        QDataStream out(&outBlock, QIODevice::WriteOnly);
+
+    //        out << qint64(0) << qint64(0) << currentPID;
+    //qDebug() << outBlock.size();
+    //        totalSize += outBlock.size();
+    //        byteToWrite += outBlock.size();
+
+    //        out.device()->seek(0);
+    //        out << totalSize << qint64(outBlock.size());
+
+    //        if(sendFileFlag==0){
+    //            pmsFileSocket->write(outBlock); // Send the read file to the socket    //서버로 보내줌
+    //        }
+    //            //정연
+    //        else if(sendFileFlag==1)
+    //            viewerFileSocket->write(outBlock);
+
+    //    }
+    //qDebug() << QString("Sending file %1").arg(currentPID);
+
+
+
 
 
 
@@ -373,7 +405,6 @@ bool MainServer::writeData(QByteArray data)
     QTcpSocket* socket = (QTcpSocket*)(sender());
     if(socket->state() == QAbstractSocket::ConnectedState)
     {
-        //socket->write(IntToArray(data.size()));
         socket->write(data); // 데이터를 보내줌
         return socket->waitForBytesWritten();
     }
@@ -385,25 +416,10 @@ bool MainServer::writeData(QByteArray data)
 
 void MainServer::sendDataToClient(QString newData)
 {
-    
-    
     QString sendData = newData;
     send_flag = writeData(sendData.toStdString().c_str()); //writeData의 첫 번째 인자는 char *data와 같은 형식임
     if(!send_flag)
         qDebug() << "Socket send fail\n";
-    
-    
-    
-    //    if(fd_flag)
-    //    {
-    //        QString sendData = newData;
-    //        send_flag = writeData(sendData.toStdString().c_str()); //writeData의 첫 번째 인자는 char *data와 같은 형식임
-    //        if(!send_flag)
-    //            qDebug() << "Socket send fail\n";
-    
-    //    }
-    
-    
 }
 
 void MainServer::receiveData()
@@ -435,7 +451,6 @@ void MainServer::receiveData()
             /*어떤 모듈과 연관이 있는 소켓인지 알 수 있도록 map에 연결해 저장하는 부분*/
             if(id == "PMS")
             {
-
                 sk.insert(pmsSocket, "PMS");
                 pmsSocket = socket;
                 qDebug() << "pmsSocket ready";
@@ -473,7 +488,6 @@ void MainServer::receiveData()
             if(name == data)
             {
                 sendData = sendData +id + "<CR>True";
-
             }
             else
             {
@@ -483,9 +497,6 @@ void MainServer::receiveData()
             qDebug() << "로그인 sendData: " << sendData;
             viewerSocket->write(sendData.toStdString().c_str());
 
-
-            //qDebug() << query->exec("select * from (select * from dentist where dentist_no = '" + id + "') where dentist_name = '" + data + "'");
-            //qDebug() << dentistModel->rowCount();
         }
         /*환자관리 SW 이벤트*/
         else if(event == "PER")      //신규환자 등록 끝났을 때: PER(enroll)
@@ -560,8 +571,8 @@ void MainServer::receiveData()
             if(id == "0"){      //환자번호로 검색했을 때
                 sendData = sendData + data + "<CR>";
                 
-                //시도중
-                currentPID = data+".png";
+
+                currentPID = data;
 
                 query->exec("select * from patient WHERE patient_no = '" + data + "'");
                 QSqlRecord rec = query->record();
@@ -651,7 +662,7 @@ void MainServer::receiveData()
                 }
                 
                 qDebug()<<"pid: "<<pid;
-                currentPID = pid+".png";
+                currentPID = pid;
 
                 QString reportData ="<NEL>";
                 query4->exec("select * from report WHERE patient_no = '"+ pid +"'");
@@ -693,20 +704,15 @@ void MainServer::receiveData()
 
             }
             
-            // 이거 고치기 socket->write(sendData.toStdString().c_str());
-            //            qDebug() << "PSE's Info Data: " << sendData;
-            //            qDebug() << "PSE's Report List: " << reportData;
 
             qDebug() << "PSE's sendData: " << sendData;
             pmsSocket->write(sendData.toStdString().c_str());
 
 
             sendFileFlag = 0;
-            //sendFile();
 
-            qDebug() << "&&&&&&&&&&&";
+            sendFile();
 
-            sendFaceImage();
 
 
 
@@ -754,8 +760,8 @@ void MainServer::receiveData()
             viewerSocket->write(sendWaitData.toStdString().c_str());
 
             //정연이쪽에 파일보내줌
-            //sendFileFlag = 1;
-            //sendFile();
+            sendFileFlag = 1;
+            sendFile();
 
 
         }
@@ -779,41 +785,15 @@ void MainServer::receiveData()
 
                 for(int i = 1; i<4 ; i++)
                 {
-
-                    //                    if(i == 0)
-                    //                    {
-                    //
-                    //                        qDebug() << "i: " << i << "data: " << query->value(i).toString();
-                    //                        QString data = query->value(i).toString() + "<CR>";
-                    //                        sendData += data;
-                    //                        qDebug() << "sendData: " << sendData;
-                    //
-                    //                    }
-                    //                    else
-                    //                    {
-
                     qDebug() << "i: " << i << "data: " << query->value(i).toString();
                     QString data = query->value(i).toString() + "|";
                     sendData += data;
                     qDebug() << "sendData: " << sendData;
-
-                    //                    }
                 }
-
-
-                //                qDebug() << query->value(0).toString(); // output all names
-                //                QString data = query->value(0).toString() + "<CR>";
-                //                sendData += data;
-                //                qDebug() << "sendData: " << sendData;
             }
-            //qDebug() << sendData << "sfdffsdsf";
-
-
-
 
             //@@@@@@@@이부분 미로오빠꺼 열리면 주석풀기@@@@@@@@@
             imagingSocket->write(sendData.toStdString().c_str());
-            //QString sendReadyData = event + "<CR>" + id + "<CR>" + name + birthdate + sex ;
 
 
         }
@@ -833,13 +813,6 @@ void MainServer::receiveData()
             //보낼 정보: VNT<CR>PID<CR>진료차트 번호(이거는 내가 계산)|환자이름|의사번호|의사이름|진료날짜|진료내용(처방내용)
         {
             qDebug()<< saveData;
-            //QString rpReportNo = makeReportNo();
-            //QString rpPID = id;
-            //QString rpPName = data.split("|")[0];
-            //QString rpDID = data.split("|")[1];
-            //QString rpDName = data.split("|")[2];
-            //QString rpDate = data.split("|")[3];
-            //QString rpNote = data.split("|")[4];
 
             query4->prepare("INSERT INTO report (report_no, patient_no, dentist_no, report_date, report_note)"
                             "VALUES(:report_no, :patient_no, :dentist_no, :report_date, :report_note)");
@@ -887,14 +860,11 @@ void MainServer::receiveData()
                 }
                 sendData += query->value(6).toString();
 
-                //                qDebug() << query->value(0).toString(); // output all names
-                //                QString data = query->value(0).toString() + "<CR>";
-                //                sendData += data;
-                //                qDebug() << "sendData: " << sendData;
             }
-            //qDebug() << sendData << "sfdffsdsf";
+
             qDebug() << "sendData: " << sendData;
             viewerSocket->write(sendData.toStdString().c_str());
+
             sendFileFlag = 1;
             sendFile();
 
@@ -923,13 +893,7 @@ void MainServer::receiveData()
         //buffer->clear(); //버퍼 비워주기
     }
 }
-qint32 ArrayToInt(QByteArray source)
-{
-    qint32 temp;
-    QDataStream data(&source, QIODevice::ReadWrite);
-    data >> temp;
-    return temp;
-}
+
 
 
 void MainServer::loadData()
@@ -937,9 +901,7 @@ void MainServer::loadData()
     /*DB를 추가하고 DB의 이름을 설정*/
     QSqlDatabase db = QSqlDatabase::addDatabase("QSQLITE", "databaseConnection");
     db.setDatabaseName("database.db");
-    
-    //QString patient_no, patient_name, patient_sex, patient_birthdate, patient_tel, patient_address, patient_memo;
-    
+
     /*DB를 오픈해 새로운 테이블을 만듦*/
     if (db.open( )) {
         query= new QSqlQuery(db);
@@ -962,8 +924,6 @@ void MainServer::loadData()
         query2->exec("CREATE TABLE IF NOT EXISTS dentist(dentist_no VARCHAR(10) Primary Key,"
                      "dentist_name VARCHAR(10) NOT NULL, dentist_sex VARCHAR(5) NOT NULL, dentist_tel VARCHAR(15) NOT NULL);");
         
-        //        query2->exec("CREATE TABLE IF NOT EXISTS dentist(dentist_no VARCHAR(10) Primary Key,"
-        //                    "dentist_name VARCHAR(10) NOT NULL, dentist_sex VARCHAR(5) NOT NULL), dentist_tel VARCHAR(15) NOT NULL);");
         dentistModel = new QSqlTableModel(this, db);
         dentistModel->setTable("dentist");
         dentistModel->select();
@@ -1010,43 +970,7 @@ void MainServer::loadData()
         query4->exec("INSERT INTO report VALUES ('R00002', 'P00001', 'D00002', '2023-01-20', '20일 처방전')");
         query4->exec("INSERT INTO report VALUES ('R00003', 'P00002', 'D00003', '2023-01-21', '21일 처방전')");
         reportModel->select();
-
-
-
-        
-        //        query5= new QSqlQuery(db);
-        //        query5->exec("CREATE TABLE IF NOT EXISTS image_relation(report_no VARCHAR(10), image_no VARCHAR(10), CONSTRAINT relation Primary Key(report_no, image_no));");
-        //        imageRelationModel = new QSqlTableModel(this, db);
-        //        imageRelationModel->setTable("image_relation");
-        //        imageRelationModel->select();
-        //        imageRelationModel->setHeaderData(0, Qt::Horizontal, tr("Report No"));
-        //        imageRelationModel->setHeaderData(1, Qt::Horizontal, tr("Image No"));
-        //        ui->imageRelationTableView->setModel(imageRelationModel);
-        
-        
-        query5= new QSqlQuery(db);
-        query5->exec("CREATE TABLE IF NOT EXISTS faceImage(patient_no VARCHAR(10) NOT NULL Primary Key, image_path varchar(300) NOT NULL);");
-        faceModel = new QSqlTableModel(this, db);
-        faceModel->setTable("faceImage");
-        faceModel->select();
-        faceModel->setHeaderData(0, Qt::Horizontal, tr("Patient No"));
-        faceModel->setHeaderData(1, Qt::Horizontal, tr("Image Path"));
-        ui->faceImageTableView->setModel(faceModel);
-        
-        
-        
-        
-        //            view->setModel(model);
-        //            model->query(Qs("select * from table"));
-        //            model->select();
-        
-        //        query->exec(QString("INSERT INTO patient VALUES (%1, '%2', '%3', '%4', '%5', '%6', '%7')").arg(patient_no)
-        //                    .arg(patient_name).arg(patient_sex).arg(patient_birthdate).arg(patient_tel).arg(patient_address)
-        //                    .arg(patient_memo));
-        
-        //query->exec("SELECT * FROM patient where patient_sex = '" + sex + "'");
     }
-    
 }
 
 
@@ -1058,25 +982,9 @@ QString MainServer::makeId( )
     
     if(patientModel->rowCount() == 0) {
         id = 1;
-        qDebug()<< "it will return rowCount: 1";
         return "P" + QString::number(id).rightJustified(5,'0');
     } else {
-        //auto id = patientModel->data(patientModel->index(patientModel->rowCount()-1, 0)).toInt();
-        //qDebug() << "now" << patientModel->data(patientModel->index(patientModel->rowCount()-1, 0)).toInt();
-        //id = patientModel->rowCount();
-        //qDebug() << "last: " << query->
-        //id++;
-        
         int tempPid = patientModel->itemData(patientModel->index(patientModel->rowCount() - 1,0)).value(0).toString().right(5).toInt()+1; //마지막 row의 pid+1 값을 리턴
-        qDebug() << "id is not 1, id: " << tempPid;
-        qDebug()<< "it will return rowCount: " << "P" + QString::number(tempPid).rightJustified(5,'0');
-        
-        //        qDebug() << "1: " << patientModel->itemData(patientModel->index(patientModel->rowCount() - 1,0));
-        //        qDebug() << "2: " << patientModel->itemData(patientModel->index(patientModel->rowCount() - 1,0)).value(0);
-        //        qDebug() << "3: " << patientModel->itemData(patientModel->index(patientModel->rowCount() - 1,0)).value(0).toString(); //"P00001"
-        //        qDebug() << "4: " <<  patientModel->itemData(patientModel->index(patientModel->rowCount() - 1,0)).value(0).toString().right(5).toInt();
-        
-        //return "P" + QString::number(id).rightJustified(5,'0');
         return "P" + QString::number(tempPid).rightJustified(5,'0');
     }
 }
@@ -1089,13 +997,9 @@ QString MainServer::makeReportNo()
 
     if(reportModel->rowCount() == 0) {
         id = 1;
-        qDebug()<< "it will return report rowCount: 1";
         return "R" + QString::number(id).rightJustified(5,'0');
     } else {
         int tempReportNo= reportModel->itemData(reportModel->index(reportModel->rowCount() - 1,0)).value(0).toString().right(5).toInt()+1; //마지막 row의 pid+1 값을 리턴
-        qDebug() << "report no is not 1, no: " << tempReportNo;
-        qDebug()<< "it will return report rowCount: " << "R" + QString::number(tempReportNo).rightJustified(5,'0');
-
         return "R" + QString::number(tempReportNo).rightJustified(5,'0');
     }
 }

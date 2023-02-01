@@ -21,9 +21,7 @@ private slots:
 
     void receiveData();
     void receiveFile();
-//    void newConnection();
-//    void disconnected();
-    void receiveFaceImage();
+
 
 private:
     QTcpSocket *socket;
@@ -42,7 +40,6 @@ private:
 
 
     QTcpSocket *fileSocket;
-    QTcpSocket *FaceSocket;
 
     qint64 totalSize;
     qint64 byteReceived = 0;
@@ -53,6 +50,8 @@ private:
     QString currentPID = "NULL";
 
     QByteArray *byteArray;
+
+    QByteArray allFile;
 
 signals:
     void sendNewPID(QString);

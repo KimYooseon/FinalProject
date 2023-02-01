@@ -44,7 +44,6 @@ private slots:
 //    void byteArraySended(QByteArray*);
     //void byteArraySended(QPixmap&);
 
-    void faceImageSended(QString);
 
 signals:
     void sendSearchData(QString);
