@@ -108,6 +108,7 @@ private:
 
 
     QByteArray allFile;
+    QByteArray sendAllFile;
 
 signals:
     void sendNewPID(QString);

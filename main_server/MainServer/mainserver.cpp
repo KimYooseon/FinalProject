@@ -96,12 +96,12 @@ void MainServer::receiveFile()
 
     // Beginning File Transfer
     if (byteReceived == 0) {                                    // First Time(Block) , var byteReceived is always zero
-//        checkFileName = fileName;                               // 다음 패킷부터 파일이름으로 구분하기 위해 첫 패킷에서 보낸 파일이름을 임시로 저장
+        //        checkFileName = fileName;                               // 다음 패킷부터 파일이름으로 구분하기 위해 첫 패킷에서 보낸 파일이름을 임시로 저장
         qDebug() << "filename" << fileName;
         QDataStream in(imagingFileSocket);
         in.device()->seek(0);
         in >> totalSize >> byteReceived >> currentPID >> type;
-//        if(checkFileName == fileName) return;
+        //        if(checkFileName == fileName) return;
 
 
 
@@ -121,7 +121,7 @@ void MainServer::receiveFile()
         file->open(QFile::WriteOnly);
 
     } else {
-//        if(checkFileName == fileName) return;
+        //        if(checkFileName == fileName) return;
         inBlock = imagingFileSocket->readAll();
 
         byteReceived += inBlock.size();
@@ -157,11 +157,11 @@ void MainServer::goOnSend(qint64 numBytes)
 
 
 
-//    if(sendFileFlag==0)
-        pmsFileSocket->write(outBlock);
-//    //정연이
-//    else if(sendFileFlag==1)
-//        viewerFileSocket->write(outBlock);
+    //    if(sendFileFlag==0)
+    pmsFileSocket->write(outBlock);
+    //    //정연이
+    //    else if(sendFileFlag==1)
+    //        viewerFileSocket->write(outBlock);
 
 
     if (byteToWrite == 0) {                 // 전송이 완료되었을 때(이제 더이상 남은 파일 크기가 없을 때)
@@ -175,105 +175,63 @@ void MainServer::goOnSend(qint64 numBytes)
 
 void MainServer::sendFile()
 {
-
-        QDir dir(QString("./Image/%1").arg(currentPID));
-        QStringList filters;
-        filters << "*.png" << "*.jpg" << "*.bmp";
-        QFileInfoList fileInfoList = dir.entryInfoList(filters, QDir::Files | QDir::NoDotAndDotDot);
-        qDebug() << "폴더 안의 전체 파일 개수-fileInfoList.count(): " << fileInfoList.count();
+    qDebug() << saveFileData;
 
 
+    loadSize = 0;
+    byteToWrite = 0;
+    totalSize = 0;
+    outBlock.clear();
 
-        QDataStream out(&outBlock, QIODevice::WriteOnly);
-        for(int i = 0; i < fileInfoList.count(); i++)
-        {
-            QString currentFileName = dir.path() + "/" + fileInfoList.at(i).fileName();
-            qDebug() << currentFileName;
+    //QString filename = id; //여기까지함
 
-            file = new QFile(currentFileName);
-            file->open(QFile::ReadOnly);
-            pmsFileSocket->write(file->readAll());
 
-            //파일 구분 =>이거 써도 allFile qDebug로 확인해보니 안 찍힘
-            //allFile.append("<CR>");
-
-            file->close();
-            pmsFileSocket->flush();
-        }
-
-}
-
-//void MainServer::sendFile()
-//{
-
-//        QDir dir(QString("./Image/%1").arg(currentPID));
-//        QStringList filters;
-//        filters << "*.png" << "*.jpg" << "*.bmp";
-//        QFileInfoList fileInfoList = dir.entryInfoList(filters, QDir::Files | QDir::NoDotAndDotDot);
-//        qDebug() << "폴더 안의 전체 파일 개수-fileInfoList.count(): " << fileInfoList.count();
+    qDebug() << "((((((currentPID" << currentPID;    //ex. P00003
+    QDir dir(QString("./Image/%1").arg(currentPID));
+    QStringList filters;
+    filters << "*.png" << "*.jpg" << "*.bmp";
+    QFileInfoList fileInfoList = dir.entryInfoList(filters, QDir::Files | QDir::NoDotAndDotDot);
+    qDebug() << "폴더 안의 전체 파일 개수-fileInfoList.count(): " << fileInfoList.count();
 
 
 
-//        QDataStream out(&outBlock, QIODevice::WriteOnly);
-//        for(int i = 0; i < fileInfoList.count(); i++)
-//        {
-//            QString currentFileName = dir.path() + "/" + fileInfoList.at(i).fileName();
-//            qDebug() << currentFileName;
+    //QDataStream out(&outBlock, QIODevice::WriteOnly);
 
-//            file = new QFile(currentFileName);
-//            file->open(QFile::ReadOnly);
-//            allFile.append(file->readAll());
-
-//            //파일 구분 =>이거 써도 allFile qDebug로 확인해보니 안 찍힘
-//            //allFile.append("<CR>");
-
-//            file->close();
-//        }
-//        qDebug("%d", allFile.size());
-
-//        pmsFileSocket->write(allFile);
-//        qDebug() << pmsFileSocket->size();
-//        pmsFileSocket->flush();
-//        allFile.clear();
-//}
+    //보내는 형식: 파일개수<CR>파일명<f>파일크기<n>파일명<f>파일크기<n>|파일정보1파일정보2...
+    allFile.append(QString::number(fileInfoList.count()).toStdString());
+    allFile.append("<CR>");
 
 
-//void MainServer::sendFile()
-//{
-//    qDebug() << saveFileData;
-//    //QString event = saveFileData.split("<CR>")[0];
-//    //QString id = saveFileData.split("<CR>")[1];
+    QByteArray tempArray;
+
+    for(int i = 0; i < fileInfoList.count(); i++)
+    {
+        QString currentFileName = dir.path() + "/" + fileInfoList.at(i).fileName();
+        qDebug() << currentFileName;
+
+        file = new QFile(currentFileName);
+        file->open(QFile::ReadOnly);
+
+        //파일명과 파일크기 전송
+        QString fileString = fileInfoList.at(i).fileName() + "<f>"
+                + QString::number(file->size()) + "<n>";
+
+        allFile.append(fileString.toStdString());
+
+        tempArray.append(file->readAll());
+        qDebug() << "tempSize " << file->size();
+    }
+    allFile.append("|");
+    allFile.append(tempArray);  // 파일정보 전송
+    allFile.append("<FIN>");
+
+    qDebug() << "allFile.size()" << allFile.size();
 
 
-//    if(sendFileFlag==0)
-//    {
-        //    }
-//    //정연
-//    else if(sendFileFlag==1)
-//    {
-//        qDebug() << "sendFile 정연이쪽으로 파일!!!";
-//        connect(viewerFileSocket, SIGNAL(bytesWritten(qint64)), SLOT(goOnSend(qint64)));
-//    }
+//    QDataStream out(&sendAllFile, QIODevice::WriteOnly);
+//    out << allFile.size() << allFile;
 
-//    loadSize = 0;
-//    byteToWrite = 0;
-//    totalSize = 0;
-//    outBlock.clear();
-
-//    //QString filename = id; //여기까지함
-
-
-//    qDebug() << "((((((currentPID" << currentPID;    //ex. P00003
-//    QDir dir(QString("./Image/%1").arg(currentPID));
-//    QStringList filters;
-//    filters << "*.png" << "*.jpg" << "*.bmp";
-//    QFileInfoList fileInfoList = dir.entryInfoList(filters, QDir::Files | QDir::NoDotAndDotDot);
-//    qDebug() << "폴더 안의 전체 파일 개수-fileInfoList.count(): " << fileInfoList.count();
-
-
-
-//    QDataStream out(&outBlock, QIODevice::WriteOnly);
-
+    pmsFileSocket->write(allFile);
 
 //    for(int i = 0; i < fileInfoList.count(); i++)
 //    {
@@ -283,6 +241,8 @@ void MainServer::sendFile()
 //        file = new QFile(currentFileName);
 //        file->open(QFile::ReadOnly);
 
+
+
 //        allFile.append(file->readAll());
 
 //        allFile.append("<NEXT>");
@@ -290,34 +250,32 @@ void MainServer::sendFile()
 
 //    }
 
-//    while(1)
-//    {
-//        goOnSend(40);
+    //    while(1)
+    //    {
+    //        goOnSend(40);
 
-//        if(byteToWrite <= 0)
-//            return;
-//    }
-
-//    pmsFileSocket->write(allFile);
+    //        if(byteToWrite <= 0)
+    //            return;
+    //    }
 
 
 
-//        qDebug() << "***********************byteToWrite: " <<byteToWrite;
-//        totalSize += byteToWrite;
-
-//        out << qint64(0) << qint64(0) << currentFileName;
 
 
-//        totalSize += outBlock.size();    //첫번째 qint;
-//        byteToWrite += outBlock.size();  //두번째 qint;
+    //        qDebug() << "***********************byteToWrite: " <<byteToWrite;
+    //        totalSize += byteToWrite;
 
-//        out.device()->seek(0);
-//        out << totalSize << qint64(outBlock.size());
-//    }
-
-//    qDebug() << "totalSize" << totalSize;
+    //        out << qint64(0) << qint64(0) << currentFileName;
 
 
+    //        totalSize += outBlock.size();    //첫번째 qint;
+    //        byteToWrite += outBlock.size();  //두번째 qint;
+
+    //        out.device()->seek(0);
+    //        out << totalSize << qint64(outBlock.size());
+    //    }
+
+    //    qDebug() << "totalSize" << totalSize;
 
 
 
@@ -326,49 +284,14 @@ void MainServer::sendFile()
 
 
 
-//        byteToWrite = totalSize = file->size();
-//        loadSize = 1024;
-
-//        QDataStream out(&outBlock, QIODevice::WriteOnly);
-
-//        out << qint64(0) << qint64(0) << currentFileName;
-//        totalSize += outBlock.size();
-//        byteToWrite += outBlock.size();
-
-//        out.device()->seek(0);
-//        out << totalSize << qint64(outBlock.size());
-
-//        if(sendFileFlag==0){
-//            pmsFileSocket->write(outBlock); // Send the read file to the socket    //서버로 보내줌
-//        }
-//        //정연
-//        else if(sendFileFlag==1)
-//            viewerFileSocket->write(outBlock);
-
-//        qDebug() << QString("Sending file %1").arg(currentFileName);
-//    }
-
-//}
 
 
-
-    //    if(currentPID.length()) {
-    //        file = new QFile(QString("./Image/%1/%2").arg(currentPID.first(6)).arg(currentPID));
-    //        qDebug() << "SSSSSSSSS" << file->fileName();
-    //        file->open(QFile::ReadOnly);
-
-    //        qDebug() << QString("file %1 is opened").arg(currentPID);
-
-    //        qDebug() <<"@@@@@@@@file->size(): " << file->size();
-
-    //        byteToWrite = totalSize = file->size(); // Data remained yet
-
-    //        loadSize = 1024; // Size of data per a block
+    //        byteToWrite = totalSize = file->size();
+    //        loadSize = 1024;
 
     //        QDataStream out(&outBlock, QIODevice::WriteOnly);
 
-    //        out << qint64(0) << qint64(0) << currentPID;
-    //qDebug() << outBlock.size();
+    //        out << qint64(0) << qint64(0) << currentFileName;
     //        totalSize += outBlock.size();
     //        byteToWrite += outBlock.size();
 
@@ -378,12 +301,49 @@ void MainServer::sendFile()
     //        if(sendFileFlag==0){
     //            pmsFileSocket->write(outBlock); // Send the read file to the socket    //서버로 보내줌
     //        }
-    //            //정연
+    //        //정연
     //        else if(sendFileFlag==1)
     //            viewerFileSocket->write(outBlock);
 
+    //        qDebug() << QString("Sending file %1").arg(currentFileName);
     //    }
-    //qDebug() << QString("Sending file %1").arg(currentPID);
+
+}
+
+
+
+//    if(currentPID.length()) {
+//        file = new QFile(QString("./Image/%1/%2").arg(currentPID.first(6)).arg(currentPID));
+//        qDebug() << "SSSSSSSSS" << file->fileName();
+//        file->open(QFile::ReadOnly);
+
+//        qDebug() << QString("file %1 is opened").arg(currentPID);
+
+//        qDebug() <<"@@@@@@@@file->size(): " << file->size();
+
+//        byteToWrite = totalSize = file->size(); // Data remained yet
+
+//        loadSize = 1024; // Size of data per a block
+
+//        QDataStream out(&outBlock, QIODevice::WriteOnly);
+
+//        out << qint64(0) << qint64(0) << currentPID;
+//qDebug() << outBlock.size();
+//        totalSize += outBlock.size();
+//        byteToWrite += outBlock.size();
+
+//        out.device()->seek(0);
+//        out << totalSize << qint64(outBlock.size());
+
+//        if(sendFileFlag==0){
+//            pmsFileSocket->write(outBlock); // Send the read file to the socket    //서버로 보내줌
+//        }
+//            //정연
+//        else if(sendFileFlag==1)
+//            viewerFileSocket->write(outBlock);
+
+//    }
+//qDebug() << QString("Sending file %1").arg(currentPID);
 
 
 
