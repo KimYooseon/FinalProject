@@ -55,10 +55,10 @@ private:
     QByteArray allFile;
 
 
-    QMap<int, int> fileMap; //인덱스, 파일크기
-    QMap<int, QString> fileNameMap; //인덱스, 파일이름
+
     int allFileSize = 0;
     QByteArray allFileSended;
+    QString id;
 
 signals:
     void sendNewPID(QString);

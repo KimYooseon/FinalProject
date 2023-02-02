@@ -107,7 +107,7 @@ private:
     QString type;
 
 
-    QByteArray allFile;
+
     QByteArray sendAllFile;
 
 signals:

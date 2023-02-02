@@ -75,10 +75,11 @@ void NetworkManager::receiveFile() //P00004 파일 2개짜리로 해보기
     //    QByteArray byte;
     //    byte = fileSocket->readAll();
     allFile.append(fileSocket->readAll());
+
     if(QString(allFile).right(5) == "<FIN>")
     {
         qDebug() << "allFile size: " <<allFile.size();
-        qDebug() << "잡았다~";
+        qDebug() << "Finish Catched";
         makeFiles();
     }
 }
@@ -93,6 +94,10 @@ void NetworkManager::makeFiles() //P00004 파일 2개짜리로 해보기
     int fileCount = totalFileInfo.split("<CR>")[0].toInt();
     QString fileInfo = totalFileInfo.split("<CR>")[1];
 
+
+    QMap<int, int> fileMap; //인덱스, 파일크기
+    QMap<int, QString> fileNameMap; //인덱스, 파일이름
+
     for(int i=0; i<fileCount; i++)
     {
         QString partInfo = fileInfo.split("<n>")[i];
@@ -103,14 +108,17 @@ void NetworkManager::makeFiles() //P00004 파일 2개짜리로 해보기
         int partFileSize = partInfo.split("<f>")[1].toInt();
         qDebug() << "partFileSize"<<partFileSize;
 
+
+
         fileMap.insert(i, partFileSize);
         fileNameMap.insert(i, partFileName);
         allFileSize += partFileSize;
         qDebug()<< "************" <<allFileSize;
     }
 
-    qDebug() <<fileInfoArray.size() +  fileMap.value(0) + fileMap.value(1);
-               //+ allFile.sliced(fileInfoArray.size()+1, fileInfoArray.size()+fileMap.value(0)-1).size();
+    qDebug() <<fileInfoArray.size() +  fileMap.value(0) + fileMap.value(1) +6; //6은 |과 <FIN> 의 크기
+    qDebug()<< allFile.sliced(fileInfoArray.size()+1, fileMap.value(0)).size();
+    qDebug()<< allFile.sliced(fileMap.value(0)+1, fileMap.value(1)).size();
                //+ allFile.sliced(fileInfoArray.size()+fileMap.value(0), fileInfoArray.size()+fileMap.value(0) + fileMap.value(1)-1).size();
 
     //qDebug() << allFile.sliced(fileInfoArray.size()+1, fileInfoArray.size()+fileMap.value(0)-1);
@@ -119,25 +127,32 @@ void NetworkManager::makeFiles() //P00004 파일 2개짜리로 해보기
 
 
 
-
-
-
-
-        QDir dir(QString("Image/%1").arg(currentPID));
+        //QDir dir(QString("Image/%1").arg(currentPID));
+        QDir dir("Image");
         if (!dir.exists())
             dir.mkpath(".");
 
-        fileName = dir.path() + "/" + QString("1.png");
-        QFile file;
-        file.setFileName(fileName);
-        file.open(QIODevice::WriteOnly);
+        for(int i=0; i<fileCount; i++)
+        {
+            fileName = dir.path() + "/" + fileNameMap.value(i);
+            QFile file;
+            file.setFileName(fileName);
+            file.open(QIODevice::WriteOnly);
 
-        file.write(allFile);
+            QByteArray writeArray;
+            if(i==0)
+                writeArray.append(allFile.sliced(fileInfoArray.size()+1, fileMap.value(0)));
+            else
+                writeArray.append(allFile.sliced(fileInfoArray.size()+1+fileMap.value(0), fileMap.value(i)));
 
+            //qDebug()<<allFile.sliced(fileMap.value(i-1)+1, fileMap.value(i));
 
+            file.write(writeArray);
+        }
 
+allFile.clear();
 
-
+emit PSEDataInNET(id);
 }
 
 
@@ -440,7 +455,7 @@ void NetworkManager::makeFiles() //P00004 파일 2개짜리로 해보기
             {
                 //어떤 이벤트인지에 따라 불러올 함수 써주기(각각 이벤트에 대한 함수 만들고 if-else문 타도록 만들자)
                 QString event = saveData.split("<CR>")[0];
-                QString id = saveData.split("<CR>")[1];
+                id = saveData.split("<CR>")[1];
                 QString data = saveData.split("<CR>")[2];
                 qDebug("%d", __LINE__);
                 qDebug() << "event: " << event;

@@ -198,6 +198,7 @@ void MainServer::sendFile()
     //QDataStream out(&outBlock, QIODevice::WriteOnly);
 
     //보내는 형식: 파일개수<CR>파일명<f>파일크기<n>파일명<f>파일크기<n>|파일정보1파일정보2...
+    QByteArray allFile;
     allFile.append(QString::number(fileInfoList.count()).toStdString());
     allFile.append("<CR>");
 
@@ -232,6 +233,8 @@ void MainServer::sendFile()
 //    out << allFile.size() << allFile;
 
     pmsFileSocket->write(allFile);
+
+}
 
 //    for(int i = 0; i < fileInfoList.count(); i++)
 //    {
@@ -308,7 +311,7 @@ void MainServer::sendFile()
     //        qDebug() << QString("Sending file %1").arg(currentFileName);
     //    }
 
-}
+
 
 
 
