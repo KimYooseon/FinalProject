@@ -109,7 +109,7 @@ void NetworkManager::makeFiles() //P00004 파일 2개짜리로 해보기
         qDebug()<< "************" <<allFileSize;
     }
 
-    qDebug() <<fileInfoArray.size() + fileMap.value(0) + fileMap.value(1);
+    qDebug() <<fileInfoArray.size() +  fileMap.value(0) + fileMap.value(1);
                //+ allFile.sliced(fileInfoArray.size()+1, fileInfoArray.size()+fileMap.value(0)-1).size();
                //+ allFile.sliced(fileInfoArray.size()+fileMap.value(0), fileInfoArray.size()+fileMap.value(0) + fileMap.value(1)-1).size();
 
