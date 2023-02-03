@@ -132,6 +132,50 @@ void NetworkManager::makeFiles() //P00004 파일 2개짜리로 해보기
         if (!dir.exists())
             dir.mkpath(".");
 
+<<<<<<< HEAD
+
+        int firstSize, secondSize;
+        for(int i=0; i<fileCount; i++)
+        {
+            fileName = dir.path() + "/" + fileNameMap.value(i);
+            QFile file;
+            file.setFileName(fileName);
+            file.open(QIODevice::WriteOnly);
+
+            QByteArray writeArray;
+            if(i==0){
+                writeArray.append(allFile.sliced(fileInfoArray.size()+1, fileMap.value(0)));
+                firstSize = fileInfoArray.size()+1;
+                secondSize = fileMap.value(0);
+            }
+            else{
+                writeArray.append(allFile.sliced(firstSize+secondSize, fileMap.value(i)));
+                firstSize = firstSize+secondSize;
+                secondSize = fileMap.value(i);
+
+            }
+
+//            if(i==0)
+//                writeArray.append(allFile.sliced(fileInfoArray.size()+1, fileMap.value(0)));
+//            else if(i==1)
+//                writeArray.append(allFile.sliced(fileInfoArray.size()+1+fileMap.value(0), fileMap.value(1)));
+//            else if(i==2)
+//                writeArray.append(allFile.sliced(fileInfoArray.size()+1+fileMap.value(0) + fileMap.value(1), fileMap.value(2)));
+
+//            else{
+//                writeArray.append(firstArray, fileMap.value(i));
+//                firstArray += fileMap.value(i);
+//                //writeArray.append(allFile.sliced(fileInfoArray.size()+1+fileMap.value(0), fileMap.value(i)));
+//            }
+
+            //qDebug()<<allFile.sliced(fileMap.value(i-1)+1, fileMap.value(i));
+
+            file.write(writeArray);
+        }
+
+allFile.clear();
+
+=======
         for(int i=0; i<fileCount; i++)
         {
             fileName = dir.path() + "/" + fileNameMap.value(i);
@@ -152,6 +196,7 @@ void NetworkManager::makeFiles() //P00004 파일 2개짜리로 해보기
 
 allFile.clear();
 
+>>>>>>> 8ec7ec115628eb083dde56e5ac73a077ca778e9c
 emit PSEDataInNET(id);
 }
 
