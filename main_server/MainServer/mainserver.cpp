@@ -68,7 +68,7 @@ void MainServer::newFileConnection()
 
 void MainServer::receiveFile()
 {
-    //이미지 파일명: pid_type_date.bmp
+    //이미지 파일명: type_date.bmp
 
     //ex.CNT<CR>IMG<CR>NULL
     QTcpSocket *socket = dynamic_cast<QTcpSocket*>(sender());
@@ -82,12 +82,12 @@ void MainServer::receiveFile()
         }
         else if (id == "PMS") {
             qDebug("%d: RECEIVED PMS SOCKET", __LINE__);
-            qDebug() << "pmsFileSocket saveData: " << QString(arr);
+            //qDebug() << "pmsFileSocket saveData: " << QString(arr);
             pmsFileSocket = socket;
 
         } else if(id == "VEW") {
             qDebug("%d: RECEIVED VIEWER SOCKET", __LINE__);
-            qDebug() << "viewerFileSocket saveData: " << QString(arr);
+            //qDebug() << "viewerFileSocket saveData: " << QString(arr);
             viewerFileSocket =socket;
         }
 
@@ -96,32 +96,19 @@ void MainServer::receiveFile()
 
     // Beginning File Transfer
     if (byteReceived == 0) {                                    // First Time(Block) , var byteReceived is always zero
-        //        checkFileName = fileName;                               // 다음 패킷부터 파일이름으로 구분하기 위해 첫 패킷에서 보낸 파일이름을 임시로 저장
-        qDebug() << "filename" << fileName;
         QDataStream in(imagingFileSocket);
         in.device()->seek(0);
         in >> totalSize >> byteReceived >> currentPID >> type;
-        //        if(checkFileName == fileName) return;
-
-
-
-        qDebug() << "currentPID: " << currentPID;
-        qDebug() << "type: " << type;
 
         QDir dir(QString("./Image/%1").arg(currentPID));
         if (!dir.exists())
             dir.mkpath(".");
 
-
         QString currentFileName = dir.path() + "/" + type + "_" + QDate::currentDate().toString("yyyyMMdd") + ".bmp";
-
-
-
         file = new QFile(currentFileName);
         file->open(QFile::WriteOnly);
 
     } else {
-        //        if(checkFileName == fileName) return;
         inBlock = imagingFileSocket->readAll();
 
         byteReceived += inBlock.size();
@@ -146,29 +133,17 @@ void MainServer::goOnSend(qint64 numBytes)
 {
 
     numBytes = 40;
-    //qDebug() << "byteToWrite" << byteToWrite;
-    // qDebug() << "numBytes" <<numBytes;
     outBlock.clear();
 
     /*파일의 전체 크기에서 numBytes씩만큼 나누어 전송*/
     byteToWrite -= numBytes; // 데이터 사이즈를 유지
-
     outBlock = file->read(qMin(byteToWrite, numBytes));
-
-
-
-    //    if(sendFileFlag==0)
     pmsFileSocket->write(outBlock);
-    //    //정연이
-    //    else if(sendFileFlag==1)
-    //        viewerFileSocket->write(outBlock);
-
 
     if (byteToWrite == 0) {                 // 전송이 완료되었을 때(이제 더이상 남은 파일 크기가 없을 때)
         file->close();
         delete file;
     }
-
 }
 
 
