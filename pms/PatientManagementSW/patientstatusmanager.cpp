@@ -233,3 +233,17 @@ void PatientStatusManager::statusRequestSended(QString sendedRequestData)
     }
 }
 
+void PatientStatusManager::delPIDSended(QString pid)
+{
+    int delFlag;
+    int inTreatListOrNot = ui->waitTreatmentTreeWidget->findItems(pid, Qt::MatchFlags(Qt::MatchCaseSensitive)).count();
+    int inPaymentListOrNot = ui->waitPaymentTreeWidget->findItems(pid, Qt::MatchFlags(Qt::MatchCaseSensitive)).count();
+
+    if(inTreatListOrNot+inPaymentListOrNot==0)
+        delFlag = 0;
+    else
+        delFlag = 1;
+
+    emit sendDelFlag(delFlag);
+
+}

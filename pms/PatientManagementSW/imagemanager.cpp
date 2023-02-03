@@ -57,3 +57,8 @@ void ImageManager::PSEDataSended(QString id)
 
     reloadImages(id);
 }
+
+void ImageManager::delPIDSendedToImg(QString id)
+{
+    ui->imageListWidget->clear();
+}

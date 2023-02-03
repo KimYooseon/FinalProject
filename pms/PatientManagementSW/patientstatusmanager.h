@@ -40,9 +40,12 @@ private slots:
 
     void PIDsendedtoWaitList(QString);
 
+    void delPIDSended(QString pid);
+
 signals:
     void sendRequest(QString);
     void inWaitListSignal(int);
+    void sendDelFlag(int);
 };
 
 #endif // PATIENTSTATUSMANAGER_H

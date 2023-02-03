@@ -475,8 +475,19 @@ void MainServer::receiveData()
         }
         else if(event == "PDE")     //환자 정보 삭제: PDE(delete)
         {
+            qDebug()<<"@@@@@@@@@@@@@"<<id;
+            QDir dir(QString("./Image/%1").arg(id));
+            qDebug() << dir.dirName();
+            dir.removeRecursively();
+
             query->exec("delete from patient WHERE patient_no = '" + id + "'");
             patientModel->select();
+
+            //이미지 폴더의 pid 폴더 삭제
+
+
+
+
         }
         else if(event == "PSE")     //검색: PSE(search)         //DB에 없는 환자 검색했을 때 죽는 거 예외처리 해야 함
         {
