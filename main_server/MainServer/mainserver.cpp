@@ -528,7 +528,7 @@ void MainServer::receiveData()
                 query->exec("select * from patient WHERE patient_no = '" + data + "'");
                 QSqlRecord rec = query->record();
                 qDebug() << "Number of columns: " << rec.count();
-                
+
                 while (query->next())
                 {
                     for(int i=1; i<rec.count() ; i++)
@@ -552,11 +552,14 @@ void MainServer::receiveData()
                 {
                     for(int i=0;i<reportRec.count();i++)
                     {
+
                         if(i==2)
                         {
+
                             dentistID = query4->value(i).toString();
                             qDebug()<<"doctorID: " << dentistID;
                         }
+
                         //qDebug()<<"report i: "<<i <<"report data: "<<query4->value(i).toString();//output all names
                         QString tmpData = query4->value(i).toString()+"|";
                         reportData +=tmpData;
@@ -583,10 +586,16 @@ void MainServer::receiveData()
                 QString pid;
 
                 query->exec("select * from patient WHERE patient_name = '" + data + "'");
+
+                if(query->first()==false)
+                    sendData+="NULL<CR>";
+
+
+
+
+                query->exec("select * from patient WHERE patient_name = '" + data + "'");
                 QSqlRecord rec = query->record();
                 qDebug() << "Number of columns: " << rec.count();
-                
-
                 while (query->next()){
                     for(int i = 0; i<rec.count() ; i++)
                     {
@@ -654,7 +663,7 @@ void MainServer::receiveData()
                 sendData += reportData;
 
             }
-            
+
 
             qDebug() << "PSE's sendData: " << sendData;
             pmsSocket->write(sendData.toStdString().c_str());
@@ -707,8 +716,7 @@ void MainServer::receiveData()
 
             //**********여기는 정연이 뷰어SW가 켜져있을 때 다시 주석 풀기************
             //qDebug() << "정연이 소켓 있는지 확인: " << viewerSocket->isValid();
-            viewerSocket->write(sendWaitData.toStdString().c_str());
-
+//            viewerSocket->write(sendWaitData.toStdString().c_str());
 
 
 
@@ -818,8 +826,8 @@ void MainServer::receiveData()
             viewerSocket->write(sendData.toStdString().c_str());
 
             //정연이쪽에 파일보내줌
-            sendFileFlag = 1;
-            sendFile();
+//            sendFileFlag = 1;
+//            sendFile();
 
 
 
@@ -837,11 +845,11 @@ void MainServer::receiveData()
             qDebug() << "saveData: " << saveData;
 
             //미로오빠 소켓 주석
-            imagingSocket->write(saveData.toStdString().c_str());
+//            imagingSocket->write(saveData.toStdString().c_str());
 
             //정연이 소켓 주석/촬영요청이 pms에서 오든 viewer에서 오든 둘 다 촬영중으로 바뀌었다는 신호를 받아야 하기 때문에 SRQ이벤트를 서버쪽에서 다시 보내주도록 하였음
             pmsSocket->write(saveData.toStdString().c_str());
-            viewerSocket->write(saveData.toStdString().c_str());
+//            viewerSocket->write(saveData.toStdString().c_str());
         }
 
         //buffer->clear(); //버퍼 비워주기

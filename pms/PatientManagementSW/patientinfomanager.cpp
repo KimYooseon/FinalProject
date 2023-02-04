@@ -39,6 +39,16 @@ void PatientInfoManager::on_searchPushButton_clicked()
 
 void PatientInfoManager::searchDataSended(QString id, QString data)
 {
+    //없는 환자 검색했을 때
+    if(data=="<NEL>")
+    {
+        //여기에 QMessageBox 띄우기
+        QMessageBox::critical(this, tr("경고"), tr("해당 환자의 정보를 찾을 수 없습니다.\n"
+                                                 "검색할 내용을 다시 한번 확인해 주세요."));
+        ui->searchLineEdit->clear();
+        return;
+    }
+//    else
 
     pid = id;
     name = data.split("|")[0];
@@ -49,6 +59,7 @@ void PatientInfoManager::searchDataSended(QString id, QString data)
     address = data.split("|")[4];
     memo = data.split("|")[5];
 
+    qDebug("%d", __LINE__);
 
     //    QTableWidgetItem *item = new QTableWidgetItem;
     //    item->setText(pid);
@@ -62,13 +73,16 @@ void PatientInfoManager::searchDataSended(QString id, QString data)
     ui->clientInfoTableWidget->setItem(5, 0, new QTableWidgetItem(address));
     ui->clientInfoTableWidget->setItem(6, 0, new QTableWidgetItem(memo));
 
+    qDebug("%d", __LINE__);
     pixmap = new QPixmap();
     pixmap->load(QString("./Face/%1.png").arg(pid));
     pixmap->scaled(200,180,Qt::IgnoreAspectRatio);
 
+    qDebug("%d", __LINE__);
     ui->patientFace->setPixmap(pixmap->scaled(ui->patientFace->size(), Qt::KeepAspectRatio, Qt::SmoothTransformation));
 
 
+    qDebug("%d", __LINE__);
 }
 
 

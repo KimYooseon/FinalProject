@@ -487,8 +487,13 @@ emit PSEDataInNET(id);
                 }
                 else if(event == "PSE")
                 {
+
+                    qDebug("%d", __LINE__);
+                    qDebug() << "id: "<< id;
                     qDebug() << "PSE data: " << data;
                     emit sendSearchResult(id, data);    //patientInfoManager 클래스와 medicalRecordManager 클래스 두 곳으로 모두 보내줘야 함
+
+                    qDebug("%d", __LINE__);
                 }
                 else if(event == "SRQ")
                 {

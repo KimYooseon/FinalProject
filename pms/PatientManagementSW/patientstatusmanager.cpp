@@ -9,6 +9,7 @@ PatientStatusManager::PatientStatusManager(QWidget *parent) :
 {
     ui->setupUi(this);
 
+
 //    QTreeWidgetItem* paymentRow = new QTreeWidgetItem;
 //    ui->waitPaymentTreeWidget->addTopLevelItem(paymentRow);
 //    paymentRow->setText(0, "P00001");
@@ -103,15 +104,25 @@ void PatientStatusManager::on_waitTreatmentTreeWidget_itemClicked(QTreeWidgetIte
 
 void PatientStatusManager::on_paymentPushButton_clicked()
 {
-    if(selectedPayRow != nullptr)
-    {                                       //아이템이 있을 때
+    int currentRow = ui->waitPaymentTreeWidget->currentIndex().row();
+
+
+    if(currentRow == -1)    //환자 선택이 안되어있을 때
+    {
+        QMessageBox::critical(this, tr("경고"), \
+                              tr("수납대기 리스트에서 수납처리 할 환자를 선택해주세요."));
+        return;
+    }
+
+
+    //if(selectedPayRow != nullptr)
+    //{                                       //아이템이 있을 때
         //int i = ui->waitPaymentTreeWidget->currentIndex().row();           //i는 현재 인덱스 줄 번호
         ui->waitPaymentTreeWidget->takeTopLevelItem(ui->waitPaymentTreeWidget->indexOfTopLevelItem(selectedPayRow));
 
         ui->waitPaymentTreeWidget->update();                               //treeWidget 업데이트
-        QMessageBox::information(this, tr("정보"), \
-                              tr("수납 처리가 완료되었습니다."));
-    }
+        QMessageBox::information(this, tr("정보"), tr("수납 처리가 완료되었습니다."));
+    //}
 
 }
 
@@ -119,6 +130,17 @@ void PatientStatusManager::on_shootRequestPushButton_clicked()
 {
     qDebug("%d",__LINE__);
     QString imageType;
+    int currentRow = ui->waitTreatmentTreeWidget->currentIndex().row();
+
+
+    if(currentRow == -1)    //환자 선택이 안되어있을 때
+    {
+        QMessageBox::critical(this, tr("경고"), \
+                              tr("진료대기 리스트에서 촬영할 환자를 선택해주세요."));
+        return;
+    }
+
+
 
     if(ui->cephCheckBox->isChecked() == true && ui->panoCheckBox->isChecked() == true)
     {
@@ -147,9 +169,19 @@ void PatientStatusManager::on_shootRequestPushButton_clicked()
     //클릭한 아이템의 3번째 컬럼을 대기중에서 촬영중으로 바꿔야함
     //ui->waitTreatmentTreeWidget->setItemWidget()
 
-    int currentRow = ui->waitTreatmentTreeWidget->currentIndex().row();
+
     qDebug() << "currentRow: " << currentRow;
-    qDebug("%d",__LINE__);
+
+
+    qDebug() << selectedTreatRow->text(2);
+    if(selectedTreatRow->text(2)=="촬영중")
+    {
+        QMessageBox::critical(this, tr("경고"), \
+                              tr("이미 촬영 중인 환자입니다."));
+        return;
+    }
+
+
     selectedTreatRow->setText(2,"촬영중");
 
     //ui->waitTreatmentTreeWidget->setCurrentItem(2)
