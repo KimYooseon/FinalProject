@@ -520,6 +520,11 @@ emit PSEDataInNET(id);
                     qDebug()<<"VNT event Received: " << saveData;
                     emit sendVNTevent(saveData);
                 }
+                else if(event == "WTR")
+                {
+                    qDebug()<<"WTR event Received: " << saveData;
+                    emit sendWTRevent(saveData);
+                }
 
 
                 //    buffer->clear(); //버퍼 비워주기

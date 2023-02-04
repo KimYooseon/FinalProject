@@ -68,7 +68,7 @@ void PatientStatusManager::waitInfoSended(QString waitInfoSended){
     ui->waitTreatmentTreeWidget->addTopLevelItem(row);
     row->setText(0, treatPID);
     row->setText(1, treatName);
-    row->setText(2, "대기중");
+    row->setText(2, "진료대기");
 
     //ui->waitTreatmentTreeWidget->findItems()
     qDebug("%d", __LINE__);
@@ -123,6 +123,14 @@ void PatientStatusManager::on_paymentPushButton_clicked()
         ui->waitPaymentTreeWidget->update();                               //treeWidget 업데이트
         QMessageBox::information(this, tr("정보"), tr("수납 처리가 완료되었습니다."));
     //}
+
+
+
+
+        //메인서버로 수납완료된 환자 정보를 보내고, 메인서버에서는 대기정보 기록을 위해 만들어진 텍스트 파일에서 해당 환자의 정보를 삭제
+        QString paymentFinInfo = "WPY<CR>" + payPID + "<CR>" + payName;
+        emit sendPayInfo(paymentFinInfo);
+
 
 }
 
@@ -245,7 +253,7 @@ void PatientStatusManager::statusRequestSended(QString sendedRequestData)
         foreach(auto i, items)
         {                                            //아이템들을 하나씩 꺼내옴
             QTreeWidgetItem* item = static_cast<QTreeWidgetItem *>(i);
-            item->setText(2, "대기중");
+            item->setText(2, "진료대기");
         }
     }
     else if(event == "VTF"){     //@@@@@@뷰어와 연동했을 때 확인 필요
@@ -277,5 +285,49 @@ void PatientStatusManager::delPIDSended(QString pid)
         delFlag = 1;
 
     emit sendDelFlag(delFlag);
+
+}
+
+
+//오류로 인해 꺼졌을 때 다시 프로그램 실행시키면 이전의 대기 리스트가 보여지도록 만드는 부분
+void PatientStatusManager::oldListSended(QString sendedData)
+{
+    qDebug() << sendedData.split("<CR>")[2];
+    QString data = sendedData.split("<CR>")[2];
+    qDebug() << sendedData.count("<r>")+1;
+    int tempCount = sendedData.count("<r>")+1;
+
+    for(int i=0; i<tempCount; i++)
+    {
+        oldList.insert(i, data.split("<r>")[i]);
+    }
+
+
+    for(int i=0; i<tempCount; i++)
+    {
+        QString tempLine = oldList.value(i);
+        QString tempPID = tempLine.split("|")[0];
+        QString tempName = tempLine.split("|")[1];
+        QString tempStatus = tempLine.split("|")[2];
+
+        //수납대기 상태는 수납대기 리스트에 들어가야 함
+        if(tempStatus == "수납대기")
+        {
+            QTreeWidgetItem* row = new QTreeWidgetItem;
+            ui->waitPaymentTreeWidget->addTopLevelItem(row);
+            row->setText(0, tempPID);
+            row->setText(1, tempName);
+        }
+        //나머지 상태는 진료대기 리스트에 들어가야 함
+        else
+        {
+            QTreeWidgetItem* row = new QTreeWidgetItem;
+            ui->waitTreatmentTreeWidget->addTopLevelItem(row);
+            row->setText(0, tempPID);
+            row->setText(1, tempName);
+            row->setText(2, tempStatus);
+        }
+
+    }
 
 }
