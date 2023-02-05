@@ -9,6 +9,41 @@ PatientInfoManager::PatientInfoManager(QWidget *parent) :
     ui->setupUi(this);
     ui->clientInfoTableWidget->setColumnWidth(0,290);
 
+
+
+    QString pushButtonStyle = "QPushButton { "
+                              "background-color: qlineargradient(spread:pad, x1:0, y1:0, x2:1, y2:1, stop:0 rgba(149, 210, 253, 255), stop:1 rgba(152, 136, 248, 255));"
+                              "border-radius:10px;"
+                              "color:#ffffff;"
+                              "outline: 0; "
+                          "}"
+                          "QPushButton:hover { "
+                              "background-color: qlineargradient(spread:pad, x1:0, y1:0, x2:1, y2:1, stop:0 rgba(38, 43, 248, 170), stop:1 rgba(235, 7, 244, 170)); "
+                              "border-radius:10px;"
+                              "color:#ffffff;"
+                              "outline: 0; "
+                          "}";
+    QString comboBoxStyle = "QComboBox { "
+                              "background-color: qlineargradient(spread:pad, x1:0, y1:0, x2:1, y2:1, stop:0 rgba(149, 210, 253, 255), stop:1 rgba(152, 136, 248, 255));"
+                              "border-radius:10px;"
+                              "color:#ffffff;"
+                              "outline: 0; "
+                          "}"
+                          "QComboBox:hover { "
+                              "background-color: qlineargradient(spread:pad, x1:0, y1:0, x2:1, y2:1, stop:0 rgba(38, 43, 248, 170), stop:1 rgba(235, 7, 244, 170)); "
+                              "border-radius:10px;"
+                              "color:#ffffff;"
+                              "outline: 0; "
+                          "}";
+    ui->modifyPushButton->setStyleSheet(pushButtonStyle);
+    ui->deletePushButton->setStyleSheet(pushButtonStyle);
+    ui->WaitPushButton->setStyleSheet(pushButtonStyle);
+    ui->searchPushButton->setStyleSheet(pushButtonStyle);
+    ui->searchComboBox->setStyleSheet(comboBoxStyle);
+
+
+
+
     pixmap = new QPixmap();
     pixmap->load("./Face/default.png");
     pixmap->scaled(200,180,Qt::IgnoreAspectRatio);
