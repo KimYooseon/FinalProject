@@ -131,18 +131,18 @@ void MainServer::receiveFile()
         QString newIID = makeImageNo();
 
         query3->prepare("INSERT INTO image (image_no, patient_no, type, image_date, image_path)"
-                                   "VALUES(:image_no, :patient_no, :type, :image_date, :image_path)");
+                        "VALUES(:image_no, :patient_no, :type, :image_date, :image_path)");
 
 
-                    query3->bindValue(":image_no", newIID);
-                    query3->bindValue(":patient_no", currentPID);
-                    query3->bindValue(":type", type);
-                    query3->bindValue(":image_date", QDate::currentDate().toString("yyyyMMdd"));
-                    query3->bindValue(":image_path", currentFileName);
-                    query->exec();
+        query3->bindValue(":image_no", newIID);
+        query3->bindValue(":patient_no", currentPID);
+        query3->bindValue(":type", type);
+        query3->bindValue(":image_date", QDate::currentDate().toString("yyyyMMdd"));
+        query3->bindValue(":image_path", currentFileName);
+        query->exec();
 
-                    qDebug()<<"새로운 이미지 정보 저장 완료";
-                    updateRecentData();
+        qDebug()<<"새로운 이미지 정보 저장 완료";
+        updateRecentData();
 
 
 
@@ -554,26 +554,26 @@ void MainServer::receiveData()
             qDebug() << "savedata: " << saveData;
 
             qDebug() << data;
-//            QString reportData ="<NEL>";
-//            query4->exec("select * from report WHERE patient_no = '"+data +"'");
-//            QSqlRecord reportRec =query4->record();
-//            qDebug()<<"Number of columns: "<<reportRec.count();
-//            qDebug() << "report value: " << query4->value(3);
+            //            QString reportData ="<NEL>";
+            //            query4->exec("select * from report WHERE patient_no = '"+data +"'");
+            //            QSqlRecord reportRec =query4->record();
+            //            qDebug()<<"Number of columns: "<<reportRec.count();
+            //            qDebug() << "report value: " << query4->value(3);
 
 
-//            while(query4->next())
-//            {
-//                for(int i=0;i<reportRec.count();i++)
-//                {
-//                    //qDebug()<<"report i: "<<i <<"report data: "<<query4->value(i).toString();//output all names
-//                    QString tmpData = query4->value(i).toString()+"|";
-//                    reportData +=tmpData;
-//                    qDebug()<<"reportData : "<<reportData ;
+            //            while(query4->next())
+            //            {
+            //                for(int i=0;i<reportRec.count();i++)
+            //                {
+            //                    //qDebug()<<"report i: "<<i <<"report data: "<<query4->value(i).toString();//output all names
+            //                    QString tmpData = query4->value(i).toString()+"|";
+            //                    reportData +=tmpData;
+            //                    qDebug()<<"reportData : "<<reportData ;
 
-//                }
-//                query4->nextResult();
-//                reportData += "<NEL>";
-//            }
+            //                }
+            //                query4->nextResult();
+            //                reportData += "<NEL>";
+            //            }
 
 
 
@@ -849,7 +849,7 @@ void MainServer::receiveData()
             QFile oldList("waitingList.txt");
             oldList.open(QIODevice::Text | QIODevice::ReadOnly);
             QString dataText = oldList.readAll();
-qDebug() <<"dataText: "<<dataText;
+            qDebug() <<"dataText: "<<dataText;
 
             //환자 이름은 NULL인 상태로 오므로 DB에서 검색해 변경해 줄 것
             query->exec("select * from patient WHERE patient_no = '" + id + "'");
@@ -862,13 +862,13 @@ qDebug() <<"dataText: "<<dataText;
             QString replacementText(changeText);
 
             dataText.replace(re, replacementText);
-qDebug() <<"dataText: "<<dataText;
-                QFile newList("waitingList.txt");
-                if(newList.open(QFile::WriteOnly | QFile::Truncate)) {
-                    QTextStream out(&newList);
-                    out << dataText;
-                }
-                newList.close();
+            qDebug() <<"dataText: "<<dataText;
+            QFile newList("waitingList.txt");
+            if(newList.open(QFile::WriteOnly | QFile::Truncate)) {
+                QTextStream out(&newList);
+                out << dataText;
+            }
+            newList.close();
 
 
 
@@ -961,7 +961,7 @@ qDebug() <<"dataText: "<<dataText;
             QFile oldList("waitingList.txt");
             oldList.open(QIODevice::Text | QIODevice::ReadOnly);
             QString dataText = oldList.readAll();
-qDebug() <<"dataText: "<<dataText;
+            qDebug() <<"dataText: "<<dataText;
 
 
             QString changeNeededText = id + "," + data + "," + "진료중";
@@ -971,13 +971,13 @@ qDebug() <<"dataText: "<<dataText;
             QString replacementText(changeText);
 
             dataText.replace(re, replacementText);
-qDebug() <<"dataText: "<<dataText;
-                QFile newList("waitingList.txt");
-                if(newList.open(QFile::WriteOnly | QFile::Truncate)) {
-                    QTextStream out(&newList);
-                    out << dataText;
-                }
-                newList.close();
+            qDebug() <<"dataText: "<<dataText;
+            QFile newList("waitingList.txt");
+            if(newList.open(QFile::WriteOnly | QFile::Truncate)) {
+                QTextStream out(&newList);
+                out << dataText;
+            }
+            newList.close();
 
 
 
@@ -1006,7 +1006,7 @@ qDebug() <<"dataText: "<<dataText;
             QFile oldList("waitingList.txt");
             oldList.open(QIODevice::Text | QIODevice::ReadOnly);
             QString dataText = oldList.readAll();
-qDebug() <<"dataText: "<<dataText;
+            qDebug() <<"dataText: "<<dataText;
             QString changeNeededText = id + "," + data.split("|")[0] + "," + "진료대기";
             QString changeText = id + "," + data.split("|")[0] + "," + "촬영중";
 
@@ -1015,28 +1015,28 @@ qDebug() <<"dataText: "<<dataText;
             QString replacementText(changeText);
 
             dataText.replace(re, replacementText);
-qDebug() <<"dataText: "<<dataText;
-                QFile newList("waitingList.txt");
-                if(newList.open(QFile::WriteOnly | QFile::Truncate)) {
-                    QTextStream out(&newList);
-                    out << dataText;
-                }
-                newList.close();
+            qDebug() <<"dataText: "<<dataText;
+            QFile newList("waitingList.txt");
+            if(newList.open(QFile::WriteOnly | QFile::Truncate)) {
+                QTextStream out(&newList);
+                out << dataText;
+            }
+            newList.close();
 
-//            QRegularExpressionMatchIterator itr = re.globalMatch(dataText);
+            //            QRegularExpressionMatchIterator itr = re.globalMatch(dataText);
 
-//            while(itr.hasNext())
-//            {
-//                QRegularExpressionMatch match = itr.next();
-//                dataText.replace(match.capturedStart(0), match.capturedLength(0), replacementText);
-//            }
+            //            while(itr.hasNext())
+            //            {
+            //                QRegularExpressionMatch match = itr.next();
+            //                dataText.replace(match.capturedStart(0), match.capturedLength(0), replacementText);
+            //            }
 
-//            QFile currentWaitingList("waitingList.txt");
-//            if(currentWaitingList.open(QFile::WriteOnly | QFile::Truncate)) {
-//                QTextStream out(&currentWaitingList);
-//                out << dataText;
-//            }
-//            currentWaitingList.close();
+            //            QFile currentWaitingList("waitingList.txt");
+            //            if(currentWaitingList.open(QFile::WriteOnly | QFile::Truncate)) {
+            //                QTextStream out(&currentWaitingList);
+            //                out << dataText;
+            //            }
+            //            currentWaitingList.close();
 
 
 
@@ -1050,7 +1050,7 @@ qDebug() <<"dataText: "<<dataText;
             QFile oldList("waitingList.txt");
             oldList.open(QIODevice::Text | QIODevice::ReadOnly);
             QString dataText = oldList.readAll();
-qDebug() <<"dataText: "<<dataText;
+            qDebug() <<"dataText: "<<dataText;
             QString changeNeededText = id + "," + data + "," + "수납대기";
             QString changeText = id + "," + data + "," + "수납대기";
 
@@ -1059,13 +1059,13 @@ qDebug() <<"dataText: "<<dataText;
             QString replacementText(changeText);
 
             dataText.replace(re, replacementText);
-qDebug() <<"dataText: "<<dataText;
-                QFile newList("waitingList.txt");
-                if(newList.open(QFile::WriteOnly | QFile::Truncate)) {
-                    QTextStream out(&newList);
-                    out << dataText;
-                }
-                newList.close();
+            qDebug() <<"dataText: "<<dataText;
+            QFile newList("waitingList.txt");
+            if(newList.open(QFile::WriteOnly | QFile::Truncate)) {
+                QTextStream out(&newList);
+                out << dataText;
+            }
+            newList.close();
         }
 
 
@@ -1087,7 +1087,7 @@ void MainServer::loadData()
     /*DB를 오픈해 새로운 테이블을 만듦*/
     if (db.open( )) {
         query= new QSqlQuery(db);
-//        query->exec("PRAGMA foreign_keys = ON");
+        //        query->exec("PRAGMA foreign_keys = ON");
 
         query->exec("CREATE TABLE IF NOT EXISTS patient(patient_no VARCHAR(10) Primary Key,"
                     "patient_name VARCHAR(10) NOT NULL, patient_sex VARCHAR(5) NOT NULL, patient_birthdate VARCHAR(15) NOT NULL,"
@@ -1125,9 +1125,9 @@ void MainServer::loadData()
 
 
         query3= new QSqlQuery(db);
-//        query3->exec("PRAGMA foreign_keys = ON");
-//        query3->exec("CREATE TABLE IF NOT EXISTS image(image_no VARCHAR(10) Primary Key, patient_no VARCHAR(10),"
-//                     "type VARCHAR(10) NOT NULL, image_date VARCHAR(15) NOT NULL, image_path varchar(300) NOT NULL, Foreign Key (patient_no) REFERENCES patient(patient_no) ON DELETE CASCADE);");
+        //        query3->exec("PRAGMA foreign_keys = ON");
+        //        query3->exec("CREATE TABLE IF NOT EXISTS image(image_no VARCHAR(10) Primary Key, patient_no VARCHAR(10),"
+        //                     "type VARCHAR(10) NOT NULL, image_date VARCHAR(15) NOT NULL, image_path varchar(300) NOT NULL, Foreign Key (patient_no) REFERENCES patient(patient_no) ON DELETE CASCADE);");
         query3->exec("CREATE TABLE IF NOT EXISTS image(image_no VARCHAR(10) Primary Key, patient_no VARCHAR(10) NOT NULL,"
                      "type VARCHAR(10) NOT NULL, image_date VARCHAR(15) NOT NULL, image_path varchar(300) NOT NULL);");
         imageModel = new QSqlTableModel(this, db);
@@ -1139,11 +1139,11 @@ void MainServer::loadData()
         imageModel->setHeaderData(3, Qt::Horizontal, tr("Image Date"));
         imageModel->setHeaderData(4, Qt::Horizontal, tr("Image Path"));
         ui->imageTableView->setModel(imageModel);
-//        query3->exec("INSERT INTO image VALUES ('I00001', 'P00002', 'CEPH', '20230205', './Image/P00002/20230205_CEPH.bmp')");
-//        query3->exec("INSERT INTO image VALUES ('I00002', 'P00002', 'PANO', '20230205', './Image/P00002/20230205_PANO.bmp')");
-//        query3->exec("INSERT INTO image VALUES ('I00003', 'P00001', 'PANO', '20230205', './Image/P00002/20230205_PANO.bmp')");
+        //        query3->exec("INSERT INTO image VALUES ('I00001', 'P00002', 'CEPH', '20230205', './Image/P00002/20230205_CEPH.bmp')");
+        //        query3->exec("INSERT INTO image VALUES ('I00002', 'P00002', 'PANO', '20230205', './Image/P00002/20230205_PANO.bmp')");
+        //        query3->exec("INSERT INTO image VALUES ('I00003', 'P00001', 'PANO', '20230205', './Image/P00002/20230205_PANO.bmp')");
 
-imageModel->select();
+        imageModel->select();
 
 
         query4= new QSqlQuery(db);
@@ -1244,28 +1244,75 @@ void MainServer::sendWaitingList(QTcpSocket* specSocket)
     oldList.open(QIODevice::Text | QIODevice::ReadOnly);
     QString dataText = oldList.readAll();
     qDebug() << "dataText"<<dataText;
-    QString sendData = "WTR<CR>NULL<CR>";
+
 
     int waitLineCount = dataText.count(QLatin1Char('\n'));
 
-    for(int i=0; i<waitLineCount; i++)
+    QString sendData = "WTR<CR>";
+
+
+    //촬영SW를 제외한 PMS와 Viewer에는 모든 정보를 보내줌
+    if(specSocket!=imagingSocket)
     {
-        QString tempLine = dataText.split("\n")[i];
-        qDebug() << "tempLine" <<tempLine;
+        sendData += QString::number(waitLineCount) + "<CR>";
 
-        for(int j=0 ; j<3; j++)
+
+        for(int i=0; i<waitLineCount; i++)
         {
-            QString tempItem = tempLine.split(",")[j];
-            qDebug() << tempItem;
-            sendData += tempItem;
+            QString tempLine = dataText.split("\n")[i];
+            qDebug() << "tempLine" <<tempLine;
 
-            if(j != 2)
-                sendData += "|";
+            for(int j=0 ; j<3; j++)
+            {
+                QString tempItem = tempLine.split(",")[j];
+                qDebug() << tempItem;
+                sendData += tempItem;
+
+                if(j != 2)
+                    sendData += "|";
+            }
+
+            if(i != waitLineCount-1)
+                sendData+="<r>";
+        }
+    }
+    //촬영SW는 촬영중인 정보만 보내줌
+    else if(specSocket==imagingSocket)
+    {
+        int tempCount = 0;
+
+        QString tempSendData;
+
+
+        for(int i=0; i<waitLineCount; i++)
+        {
+            QString tempLine = dataText.split("\n")[i];
+
+
+            QString tempStatus = tempLine.split(",")[2];
+            if( tempStatus == "촬영중")
+            {
+                //촬영중인 사람의 수를 구하기 위함
+                tempCount++;
+
+                for(int j=0 ; j<3; j++)
+                {
+                    QString tempItem = tempLine.split(",")[j];
+                    qDebug() << tempItem;
+                    tempSendData += tempItem;
+
+                    if(j != 2)
+                        tempSendData += "|";
+                }
+            }
+
+            sendData += QString::number(tempCount) + "<CR>" + tempSendData;
+
         }
 
-        if(i != waitLineCount-1)
-            sendData+="<r>";
     }
+
+
 
     specSocket->write(sendData.toStdString().c_str());
 }
