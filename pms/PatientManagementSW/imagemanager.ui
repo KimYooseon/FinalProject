@@ -18,6 +18,12 @@
     <layout class="QVBoxLayout" name="verticalLayout">
      <item>
       <widget class="QLabel" name="label_4">
+       <property name="minimumSize">
+        <size>
+         <width>0</width>
+         <height>30</height>
+        </size>
+       </property>
        <property name="font">
         <font>
          <pointsize>12</pointsize>
@@ -25,8 +31,11 @@
         </font>
        </property>
        <property name="styleSheet">
-        <string notr="true">background-color: rgb(42, 63, 106);
-color: rgb(255, 255, 255);</string>
+        <string notr="true">background-color: qlineargradient(spread:pad, x1:0, y1:0, x2:1, 
+                                                        y2:1, stop:0 rgba(149, 210, 253, 255),
+                                                        stop:1 rgba(152, 136, 248, 255));
+border-radius:10px;
+color:#ffffff;</string>
        </property>
        <property name="text">
         <string> 촬영 사진</string>
@@ -40,6 +49,12 @@ color: rgb(255, 255, 255);</string>
          <width>600</width>
          <height>80</height>
         </size>
+       </property>
+       <property name="styleSheet">
+        <string notr="true">QListWidget {
+border-radius:10px;
+border: 1px solid rgba(190, 190, 190, 150);
+}</string>
        </property>
        <property name="verticalScrollBarPolicy">
         <enum>Qt::ScrollBarAsNeeded</enum>
