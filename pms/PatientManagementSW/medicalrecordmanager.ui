@@ -24,8 +24,12 @@
          <bold>true</bold>
         </font>
        </property>
+       <property name="styleSheet">
+        <string notr="true">background-color: rgb(42, 63, 106);
+color: rgb(255, 255, 255);</string>
+       </property>
        <property name="text">
-        <string>진료 기록</string>
+        <string> 진료 기록</string>
        </property>
       </widget>
      </item>

@@ -104,7 +104,7 @@ void MainServer::receiveFile()
         if (!dir.exists())
             dir.mkpath(".");
 
-        QString currentFileName = dir.path() + "/" + type + "_" + QDate::currentDate().toString("yyyyMMdd") + ".bmp";
+        currentFileName = dir.path() + "/" + type + "_" + QDate::currentDate().toString("yyyyMMdd") + ".bmp";
         file = new QFile(currentFileName);
         file->open(QFile::WriteOnly);
 
@@ -123,6 +123,33 @@ void MainServer::receiveFile()
         totalSize = 0;
         file->close();
         delete file;
+
+
+
+
+
+        QString newIID = makeImageNo();
+
+        query3->prepare("INSERT INTO image (image_no, patient_no, type, image_date, image_path)"
+                                   "VALUES(:image_no, :patient_no, :type, :image_date, :image_path)");
+
+
+                    query3->bindValue(":image_no", newIID);
+                    query3->bindValue(":patient_no", currentPID);
+                    query3->bindValue(":type", type);
+                    query3->bindValue(":image_date", QDate::currentDate().toString("yyyyMMdd"));
+                    query3->bindValue(":image_path", currentFileName);
+                    query->exec();
+
+                    qDebug()<<"새로운 이미지 정보 저장 완료";
+                    updateRecentData();
+
+
+
+
+
+
+
     }
 
 }
@@ -483,7 +510,9 @@ void MainServer::receiveData()
         }
         else if(event == "PDE")     //환자 정보 삭제: PDE(delete)
         {
-            qDebug()<<"@@@@@@@@@@@@@"<<id;
+            qDebug()<<"?????????";
+
+            //이미지 폴더의 pid 폴더 삭제
             QDir dir(QString("./Image/%1").arg(id));
             qDebug() << dir.dirName();
             dir.removeRecursively();
@@ -491,10 +520,33 @@ void MainServer::receiveData()
             query->exec("delete from patient WHERE patient_no = '" + id + "'");
             patientModel->select();
 
-            //이미지 폴더의 pid 폴더 삭제
 
 
 
+
+
+
+
+            //image 테이블에서 지우려는 환자 이미지 정보도 함께 삭제
+            query3->exec("select * from image WHERE patient_no = '" + id +"'");
+            QSqlRecord imageRec =query3->record();
+            qDebug()<<"Number of columns: "<<imageRec.count();
+
+            QString dentistID, dentistName;
+            while(query3->next())
+                query3->exec("delete from image WHERE patient_no = '" + id + "'");
+
+
+
+
+
+
+
+
+
+
+
+            imageModel->select();
 
         }
         else if(event == "PSE")     //검색: PSE(search)         //DB에 없는 환자 검색했을 때 죽는 거 예외처리 해야 함
@@ -502,26 +554,26 @@ void MainServer::receiveData()
             qDebug() << "savedata: " << saveData;
 
             qDebug() << data;
-            QString reportData ="<NEL>";
-            query4->exec("select * from report WHERE patient_no = '"+data +"'");
-            QSqlRecord reportRec =query4->record();
-            qDebug()<<"Number of columns: "<<reportRec.count();
-            qDebug() << "report value: " << query4->value(3);
+//            QString reportData ="<NEL>";
+//            query4->exec("select * from report WHERE patient_no = '"+data +"'");
+//            QSqlRecord reportRec =query4->record();
+//            qDebug()<<"Number of columns: "<<reportRec.count();
+//            qDebug() << "report value: " << query4->value(3);
 
 
-            while(query4->next())
-            {
-                for(int i=0;i<reportRec.count();i++)
-                {
-                    //qDebug()<<"report i: "<<i <<"report data: "<<query4->value(i).toString();//output all names
-                    QString tmpData = query4->value(i).toString()+"|";
-                    reportData +=tmpData;
-                    qDebug()<<"reportData : "<<reportData ;
+//            while(query4->next())
+//            {
+//                for(int i=0;i<reportRec.count();i++)
+//                {
+//                    //qDebug()<<"report i: "<<i <<"report data: "<<query4->value(i).toString();//output all names
+//                    QString tmpData = query4->value(i).toString()+"|";
+//                    reportData +=tmpData;
+//                    qDebug()<<"reportData : "<<reportData ;
 
-                }
-                query4->nextResult();
-                reportData += "<NEL>";
-            }
+//                }
+//                query4->nextResult();
+//                reportData += "<NEL>";
+//            }
 
 
 
@@ -1030,9 +1082,13 @@ void MainServer::loadData()
     QSqlDatabase db = QSqlDatabase::addDatabase("QSQLITE", "databaseConnection");
     db.setDatabaseName("database.db");
 
+
+
     /*DB를 오픈해 새로운 테이블을 만듦*/
     if (db.open( )) {
         query= new QSqlQuery(db);
+//        query->exec("PRAGMA foreign_keys = ON");
+
         query->exec("CREATE TABLE IF NOT EXISTS patient(patient_no VARCHAR(10) Primary Key,"
                     "patient_name VARCHAR(10) NOT NULL, patient_sex VARCHAR(5) NOT NULL, patient_birthdate VARCHAR(15) NOT NULL,"
                     "patient_tel VARCHAR(15) NOT NULL, patient_address VARCHAR(60) NOT NULL, patient_memo VARCHAR(100));");
@@ -1061,24 +1117,34 @@ void MainServer::loadData()
         dentistModel->setHeaderData(3, Qt::Horizontal, tr("Telephone Number"));
         ui->dentistTableView->setModel(dentistModel);
         //의사 정보는 수정삭제 불가능하게 만들어놨음. 고정된 정보
-        //query2->exec("INSERT INTO dentist VALUES ('D00001', '이정연', '여성', '010-1234-5678')");
+        query2->exec("INSERT INTO dentist VALUES ('D00001', '이정연', '여성', '010-1234-5678')");
         query2->exec("INSERT INTO dentist VALUES ('D00002', '안다미로', '남성', '010-8765-4321')");
         query2->exec("INSERT INTO dentist VALUES ('D00003', '박병규', '남성', '010-3456-7890')");
+        dentistModel->select();
 
 
 
         query3= new QSqlQuery(db);
+//        query3->exec("PRAGMA foreign_keys = ON");
+//        query3->exec("CREATE TABLE IF NOT EXISTS image(image_no VARCHAR(10) Primary Key, patient_no VARCHAR(10),"
+//                     "type VARCHAR(10) NOT NULL, image_date VARCHAR(15) NOT NULL, image_path varchar(300) NOT NULL, Foreign Key (patient_no) REFERENCES patient(patient_no) ON DELETE CASCADE);");
         query3->exec("CREATE TABLE IF NOT EXISTS image(image_no VARCHAR(10) Primary Key, patient_no VARCHAR(10) NOT NULL,"
                      "type VARCHAR(10) NOT NULL, image_date VARCHAR(15) NOT NULL, image_path varchar(300) NOT NULL);");
         imageModel = new QSqlTableModel(this, db);
         imageModel->setTable("image");
-        imageModel->select();
+
         imageModel->setHeaderData(0, Qt::Horizontal, tr("Image No"));
         imageModel->setHeaderData(1, Qt::Horizontal, tr("Patient No"));
         imageModel->setHeaderData(2, Qt::Horizontal, tr("Type"));
         imageModel->setHeaderData(3, Qt::Horizontal, tr("Image Date"));
         imageModel->setHeaderData(4, Qt::Horizontal, tr("Image Path"));
         ui->imageTableView->setModel(imageModel);
+//        query3->exec("INSERT INTO image VALUES ('I00001', 'P00002', 'CEPH', '20230205', './Image/P00002/20230205_CEPH.bmp')");
+//        query3->exec("INSERT INTO image VALUES ('I00002', 'P00002', 'PANO', '20230205', './Image/P00002/20230205_PANO.bmp')");
+//        query3->exec("INSERT INTO image VALUES ('I00003', 'P00001', 'PANO', '20230205', './Image/P00002/20230205_PANO.bmp')");
+
+imageModel->select();
+
 
         query4= new QSqlQuery(db);
         query4->exec("CREATE TABLE IF NOT EXISTS report(report_no VARCHAR(10) Primary Key, patient_no VARCHAR(10) NOT NULL,"
@@ -1098,6 +1164,9 @@ void MainServer::loadData()
         query4->exec("INSERT INTO report VALUES ('R00002', 'P00001', 'D00002', '2023-01-20', '20일 처방전')");
         query4->exec("INSERT INTO report VALUES ('R00003', 'P00002', 'D00003', '2023-01-21', '21일 처방전')");
         reportModel->select();
+
+
+
     }
 }
 
@@ -1131,6 +1200,24 @@ QString MainServer::makeReportNo()
         return "R" + QString::number(tempReportNo).rightJustified(5,'0');
     }
 }
+
+
+QString MainServer::makeImageNo()
+{
+    int id;
+
+    qDebug()<< "imageModel rowCount: " << imageModel->rowCount();
+
+    if(imageModel->rowCount() == 0) {
+        id = 1;
+        return "I" + QString::number(id).rightJustified(5,'0');
+    } else {
+        int tempImageNo= imageModel->itemData(imageModel->index(imageModel->rowCount() - 1,0)).value(0).toString().right(5).toInt()+1; //마지막 row의 pid+1 값을 리턴
+        return "I" + QString::number(tempImageNo).rightJustified(5,'0');
+    }
+}
+
+
 
 //그냥 함수 지우고 저 select문만 다시 써주면 더 나을 듯. 나중에 기능구현 다 하구 지울 것!
 void MainServer::updateRecentData()
