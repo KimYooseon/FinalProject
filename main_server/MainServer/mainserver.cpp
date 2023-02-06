@@ -26,10 +26,10 @@ MainServer::MainServer(QWidget *parent) :
 
 
     fileServer = new QTcpServer(this);
-    fileServer->listen(QHostAddress::Any, 8001);
-    //QString fileSocket_data = QString("FileServer Listening: %1\n").arg(fileServer->listen(QHostAddress::Any, 8001) ? "true" : "false");
+    //fileServer->listen(QHostAddress::Any, 8001);
+    QString fileSocket_data = QString("FileServer Listening: %1\n").arg(fileServer->listen(QHostAddress::Any, 8001) ? "true" : "false");
     connect(fileServer, SIGNAL(newConnection()), this, SLOT(newFileConnection()));
-    //ui->textEdit->append(fileSocket_data);
+    ui->textEdit->append(fileSocket_data);
 
 
     //DB 로드
@@ -42,7 +42,7 @@ MainServer::~MainServer()
     delete ui;
 }
 
-//각 모듈들이 연결될 때
+//새로운 데이터 소켓이 연결될 때
 void MainServer::newConnection()
 {
     QTcpSocket* socket= server->nextPendingConnection();
@@ -60,6 +60,7 @@ void MainServer::newConnection()
 
 }
 
+//새로운 파일 소켓이 연결될 때
 void MainServer::newFileConnection()
 {
     QTcpSocket* fileSocket = fileServer->nextPendingConnection();           //receivedSocket에 fileServer에서 저장해두었던 다음 보류중인 연결을 연결해준다
@@ -108,7 +109,8 @@ void MainServer::receiveFile()
         if (!dir.exists())
             dir.mkpath(".");
 
-        currentFileName = dir.path() + "/" + type + "_" + QDate::currentDate().toString("yyyyMMdd") + ".bmp";
+        fileName = type + "_" + QDate::currentDate().toString("yyyyMMdd") + ".bmp";
+        currentFileName = dir.path() + "/" + fileName;
         file = new QFile(currentFileName);
         file->open(QFile::WriteOnly);
 
@@ -133,6 +135,12 @@ void MainServer::receiveFile()
 
 
         QString newIID = makeImageNo();
+        qDebug() << "newIID" << newIID;
+        qDebug() << "currentPID" << currentPID;
+        qDebug() << "type" << type;
+        qDebug() << "image_date" << QDate::currentDate().toString("yyyyMMdd");
+        qDebug() << "currentFileName" << currentFileName;
+
 
         query3->prepare("INSERT INTO image (image_no, patient_no, type, image_date, image_path)"
                         "VALUES(:image_no, :patient_no, :type, :image_date, :image_path)");
@@ -143,7 +151,7 @@ void MainServer::receiveFile()
         query3->bindValue(":type", type);
         query3->bindValue(":image_date", QDate::currentDate().toString("yyyyMMdd"));
         query3->bindValue(":image_path", currentFileName);
-        query->exec();
+        query3->exec();
 
         qDebug()<<"새로운 이미지 정보 저장 완료";
         updateRecentData();
