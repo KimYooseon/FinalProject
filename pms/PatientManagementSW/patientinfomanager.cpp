@@ -1,6 +1,7 @@
 #include "patientinfomanager.h"
 #include "ui_patientinfomanager.h"
 #include <QMessageBox>
+#include <QGraphicsEffect>
 
 PatientInfoManager::PatientInfoManager(QWidget *parent) :
     QWidget(parent),
@@ -9,37 +10,56 @@ PatientInfoManager::PatientInfoManager(QWidget *parent) :
     ui->setupUi(this);
     ui->clientInfoTableWidget->setColumnWidth(0,290);
 
+    ui->searchPushButton->setIcon(QIcon("./search.png"));
 
 
     QString pushButtonStyle = "QPushButton { "
-                              "background-color: qlineargradient(spread:pad, x1:0, y1:0, x2:1, y2:1, stop:0 rgba(149, 210, 253, 255), stop:1 rgba(152, 136, 248, 255));"
+                              "background-color: #ED8817;"
                               "border-radius:10px;"
                               "color:#ffffff;"
                               "outline: 0; "
                           "}"
                           "QPushButton:hover { "
-                              "background-color: qlineargradient(spread:pad, x1:0, y1:0, x2:1, y2:1, stop:0 rgba(38, 43, 248, 170), stop:1 rgba(235, 7, 244, 170)); "
+                              "background-color: rgb(100, 100, 100);"
                               "border-radius:10px;"
                               "color:#ffffff;"
                               "outline: 0; "
                           "}";
     QString comboBoxStyle = "QComboBox { "
-                              "background-color: qlineargradient(spread:pad, x1:0, y1:0, x2:1, y2:1, stop:0 rgba(149, 210, 253, 255), stop:1 rgba(152, 136, 248, 255));"
-                              "border-radius:10px;"
+                              "background-color: #ED8817;"
+                            "border-radius:10px;"
                               "color:#ffffff;"
                               "outline: 0; "
                           "}"
                           "QComboBox:hover { "
-                              "background-color: qlineargradient(spread:pad, x1:0, y1:0, x2:1, y2:1, stop:0 rgba(38, 43, 248, 170), stop:1 rgba(235, 7, 244, 170)); "
+                              "background-color: rgb(100, 100, 100);"
                               "border-radius:10px;"
                               "color:#ffffff;"
                               "outline: 0; "
                           "}";
+
+    QString labelStyle = "QLabel { "
+                              "background-color: rgb(150, 150, 150);"
+                            "border-radius:10px;"
+                              "color:#ffffff;"
+                              "outline: 0; "
+                          "}";
+
+    QGraphicsDropShadowEffect *effect = new QGraphicsDropShadowEffect;
+    effect->setBlurRadius(5);
+    effect->setXOffset(5);
+    effect->setYOffset(5);
+    effect->setColor(QColor(220,220,220));
+    ui->label_2->setGraphicsEffect(effect);
+
+
     ui->modifyPushButton->setStyleSheet(pushButtonStyle);
     ui->deletePushButton->setStyleSheet(pushButtonStyle);
     ui->WaitPushButton->setStyleSheet(pushButtonStyle);
     ui->searchPushButton->setStyleSheet(pushButtonStyle);
     ui->searchComboBox->setStyleSheet(comboBoxStyle);
+    ui->label_2->setStyleSheet(labelStyle);
+
 
 
 

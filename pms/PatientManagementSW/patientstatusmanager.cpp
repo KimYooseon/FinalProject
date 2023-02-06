@@ -2,7 +2,7 @@
 #include "ui_patientstatusmanager.h"
 #include <QTreeWidget>
 #include <QMessageBox>
-
+#include <QGraphicsEffect>
 PatientStatusManager::PatientStatusManager(QWidget *parent) :
     QWidget(parent),
     ui(new Ui::PatientStatusManager)
@@ -10,18 +10,47 @@ PatientStatusManager::PatientStatusManager(QWidget *parent) :
     ui->setupUi(this);
 
 
+
+
+    QString labelStyle = "QLabel { "
+                              "background-color: rgb(150, 150, 150);"
+                            "border-radius:10px;"
+                              "color:#ffffff;"
+                              "outline: 0; "
+                          "}";
+
+
     QString pushButtonStyle = "QPushButton { "
-                              "background-color: qlineargradient(spread:pad, x1:0, y1:0, x2:1, y2:1, stop:0 rgba(149, 210, 253, 255), stop:1 rgba(152, 136, 248, 255));"
+                              "background-color: #ED8817;"
                               "border-radius:10px;"
                               "color:#ffffff;"
                               "outline: 0; "
                           "}"
                           "QPushButton:hover { "
-                              "background-color: qlineargradient(spread:pad, x1:0, y1:0, x2:1, y2:1, stop:0 rgba(38, 43, 248, 170), stop:1 rgba(235, 7, 244, 170)); "
+                              "background-color: rgb(100, 100, 100);"
                               "border-radius:10px;"
                               "color:#ffffff;"
                               "outline: 0; "
                           "}";
+
+    QGraphicsDropShadowEffect *effect = new QGraphicsDropShadowEffect;
+    effect->setBlurRadius(5);
+    effect->setXOffset(5);
+    effect->setYOffset(5);
+    effect->setColor(QColor(220,220,220));
+    ui->label_5->setGraphicsEffect(effect);
+
+    QGraphicsDropShadowEffect *effect2 = new QGraphicsDropShadowEffect;
+    effect2->setBlurRadius(5);
+    effect2->setXOffset(5);
+    effect2->setYOffset(5);
+    effect2->setColor(QColor(220,220,220));
+    ui->label_6->setGraphicsEffect(effect2);
+
+    ui->label_5->setStyleSheet(labelStyle);
+    ui->label_6->setStyleSheet(labelStyle);
+
+
     ui->paymentPushButton->setStyleSheet(pushButtonStyle);
     ui->shootRequestPushButton->setStyleSheet(pushButtonStyle);
 
@@ -325,6 +354,16 @@ void PatientStatusManager::oldListSended(QString sendedData)
         QString tempPID = tempLine.split("|")[0];
         QString tempName = tempLine.split("|")[1];
         QString tempStatus = tempLine.split("|")[2];
+
+        if(tempStatus == "WT")
+            tempStatus = "진료대기";
+        else if(tempStatus == "TM")
+            tempStatus = "진료중";
+        else if(tempStatus == "CE" || tempStatus == "PA" || tempStatus =="BO")
+            tempStatus = "촬영중";
+        else if(tempStatus == "WP")
+            tempStatus = "수납대기";
+
 
         //수납대기 상태는 수납대기 리스트에 들어가야 함
         if(tempStatus == "수납대기")
