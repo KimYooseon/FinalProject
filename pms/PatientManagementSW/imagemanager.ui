@@ -68,6 +68,9 @@ border: 1px solid rgba(190, 190, 190, 150);
          <height>300</height>
         </size>
        </property>
+       <property name="movement">
+        <enum>QListView::Static</enum>
+       </property>
        <property name="flow">
         <enum>QListView::TopToBottom</enum>
        </property>

@@ -29,7 +29,7 @@ MainWindow::MainWindow(QWidget *parent)
                                     "outline: 0; "
                                 "}"
                                 "QPushButton:hover { "
-                                    "background-color: rgb(100, 100, 100);"
+                                    "background-color: #F2A754;"
                                     "border-radius:10px;"
                                     "color:#ffffff;"
                                     "outline: 0; "
