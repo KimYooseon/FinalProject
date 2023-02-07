@@ -1,4 +1,4 @@
-#include "medicalchart.h"
+    #include "medicalchart.h"
 #include "ui_medicalchart.h"
 
 MedicalChart::MedicalChart(QWidget *parent) :
