@@ -134,6 +134,15 @@ void PatientInfoManager::searchDataSended(QString id, QString data)
     tel = data.split("|")[3];
     address = data.split("|")[4];
     memo = data.split("|")[5];
+    fileName = data.split("|")[6];
+    int editFlag = data.split("|")[7].toInt();
+    qDebug() << "editFlag: " <<editFlag;
+
+    //등록이 되었을 때부터 수정이 가능하도록 만드는 부분
+    if(editFlag == 1)
+        ui->clientInfoTableWidget->setEditTriggers(QAbstractItemView::DoubleClicked);
+
+
 
     qDebug("%d", __LINE__);
 
@@ -151,7 +160,7 @@ void PatientInfoManager::searchDataSended(QString id, QString data)
 
     qDebug("%d", __LINE__);
     pixmap = new QPixmap();
-    pixmap->load(QString("./Face/%1.png").arg(pid));
+    pixmap->load(QString("%1").arg(fileName));
     pixmap->scaled(200,180,Qt::IgnoreAspectRatio);
 
     qDebug("%d", __LINE__);

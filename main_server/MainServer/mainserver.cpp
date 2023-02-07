@@ -109,7 +109,8 @@ void MainServer::receiveFile()
         if (!dir.exists())
             dir.mkpath(".");
 
-        fileName = type + "_" + QDate::currentDate().toString("yyyyMMdd") + ".bmp";
+        //fileName = type + "_" + QDate::currentDate().toString("yyyyMMdd") + ".bmp";
+        fileName = type + "_" + QDate::currentDate().toString("yyyyMMdd") + ".jpg";
         currentFileName = dir.path() + "/" + fileName;
         file = new QFile(currentFileName);
         file->open(QFile::WriteOnly);
