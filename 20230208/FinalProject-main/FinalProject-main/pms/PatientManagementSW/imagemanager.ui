@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>ImageManager</class>
+ <widget class="QWidget" name="ImageManager">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>795</width>
+    <height>318</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Form</string>
+  </property>
+  <layout class="QGridLayout" name="gridLayout">
+   <item row="0" column="0">
+    <layout class="QVBoxLayout" name="verticalLayout">
+     <item>
+      <widget class="QLabel" name="label_4">
+       <property name="minimumSize">
+        <size>
+         <width>0</width>
+         <height>30</height>
+        </size>
+       </property>
+       <property name="font">
+        <font>
+         <pointsize>12</pointsize>
+         <bold>true</bold>
+        </font>
+       </property>
+       <property name="styleSheet">
+        <string notr="true">background-color: qlineargradient(spread:pad, x1:0, y1:0, x2:1, 
+                                                        y2:1, stop:0 rgba(149, 210, 253, 255),
+                                                        stop:1 rgba(152, 136, 248, 255));
+border-radius:10px;
+color:#ffffff;</string>
+       </property>
+       <property name="text">
+        <string> 촬영 사진</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QListWidget" name="imageListWidget">
+       <property name="baseSize">
+        <size>
+         <width>600</width>
+         <height>80</height>
+        </size>
+       </property>
+       <property name="styleSheet">
+        <string notr="true">QListWidget {
+border-radius:10px;
+border: 1px solid rgba(190, 190, 190, 150);
+}</string>
+       </property>
+       <property name="verticalScrollBarPolicy">
+        <enum>Qt::ScrollBarAlwaysOff</enum>
+       </property>
+       <property name="horizontalScrollBarPolicy">
+        <enum>Qt::ScrollBarAlwaysOn</enum>
+       </property>
+       <property name="iconSize">
+        <size>
+         <width>300</width>
+         <height>300</height>
+        </size>
+       </property>
+       <property name="movement">
+        <enum>QListView::Static</enum>
+       </property>
+       <property name="flow">
+        <enum>QListView::TopToBottom</enum>
+       </property>
+       <property name="resizeMode">
+        <enum>QListView::Adjust</enum>
+       </property>
+       <property name="viewMode">
+        <enum>QListView::IconMode</enum>
+       </property>
+       <property name="batchSize">
+        <number>96</number>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </item>
+  </layout>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>
