@@ -5,7 +5,7 @@
 #include <QPrinter>
 #include <QPainter>
 #include <QRectF>
-
+#include <QDate>
 
 
 MedicalChart::MedicalChart(QWidget *parent) :
@@ -13,7 +13,15 @@ MedicalChart::MedicalChart(QWidget *parent) :
     ui(new Ui::MedicalChart)
 {
     ui->setupUi(this);
-    this->setFixedSize(610, 645);
+    this->setFixedSize(601, 840);
+
+    QString year = QDate::currentDate().toString("yyyy");
+    QString month = QDate::currentDate().toString("MM");
+    QString day = QDate::currentDate().toString("dd");
+
+    ui->yearLabel->setText(year);
+    ui->monthLabel->setText(month);
+    ui->dayLabel->setText(day);
 
 
 
@@ -92,13 +100,18 @@ void MedicalChart::on_printPushButton_clicked()
     if (printDialog->exec() == QDialog::Accepted) {
         // print …
         QPainter painter(&printer);
-        QPixmap buffer = grab();
+        QPixmap buffer = ui->frame_2->grab();
         //        QRect rect = painter.viewport();
         QRect rect = printer.pageRect(QPrinter::DevicePixel).toRect();
 
+
+
         buffer.setDevicePixelRatio(1);
 
-        painter.drawPixmap(0, 0, buffer.scaled(rect.size(), Qt::KeepAspectRatio, Qt::SmoothTransformation));
+        buffer = buffer.scaled(rect.size(), Qt::IgnoreAspectRatio, Qt::SmoothTransformation);
+                  painter.drawPixmap(0,0, buffer);
+
+
         painter.end();
         //        this->render(&painter);
     }
