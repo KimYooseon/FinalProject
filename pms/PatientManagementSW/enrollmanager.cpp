@@ -9,7 +9,7 @@ EnrollManager::EnrollManager(QWidget *parent) :
     ui(new Ui::EnrollManager)
 {
     ui->setupUi(this);
-    this->setFixedSize(782, 680);
+    this->setFixedSize(782, 650);
 
 
     QString enrollButtonStyle = "QPushButton { "

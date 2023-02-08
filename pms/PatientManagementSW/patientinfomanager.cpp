@@ -96,10 +96,9 @@ void PatientInfoManager::on_searchPushButton_clicked()
 
 
     emit sendSearchData(searchData);
-
-
-
     emit downloadOrNotSignal(); //새로운 환자 이미지 다운로드 해도 되는지 확인을 위해 signal 보내기
+
+    ui->searchLineEdit->clear();
 }
 
 void PatientInfoManager::searchDataSended(QString id, QString data)

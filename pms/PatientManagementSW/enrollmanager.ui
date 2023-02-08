@@ -23,7 +23,7 @@
    </size>
   </property>
   <property name="windowTitle">
-   <string>Form</string>
+   <string>Enroll Manager</string>
   </property>
   <property name="styleSheet">
    <string notr="true">background-color: rgb(242, 242, 242);</string>

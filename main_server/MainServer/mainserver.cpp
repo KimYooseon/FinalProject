@@ -45,6 +45,7 @@ MainServer::~MainServer()
 //새로운 데이터 소켓이 연결될 때
 void MainServer::newConnection()
 {
+    qDebug() << "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%";
     QTcpSocket* socket= server->nextPendingConnection();
     while (server->hasPendingConnections())
     {
@@ -404,6 +405,7 @@ void MainServer::sendDataToClient(QString newData)
 
 void MainServer::receiveData()
 {
+    qDebug() << "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%";
     QTcpSocket* socket = dynamic_cast<QTcpSocket*>(sender());
 
 
@@ -841,9 +843,9 @@ void MainServer::receiveData()
                 }
             }
 
-            //@@@@@@@@이부분 미로오빠꺼 열리면 주석풀기@@@@@@@@@
-            imagingSocket->write(sendData.toStdString().c_str());
-
+            //미로오빠소켓
+            socket->write(sendData.toStdString().c_str());
+//            imagingSocket->write(sendData.toStdString().c_str());
 
         }
         //파일소켓으로는 자동으로 이미지가 전송되고 받아지고 할 거고 ISV는 파일이 서버로 보내졌다는 사실만을 알려주는 이벤트임

@@ -7,6 +7,8 @@
 #include <QPainter>
 #include <QPrinter>
 #include <QPrintDialog>
+#include <QRectF>
+
 
 MedicalRecordManager::MedicalRecordManager(QWidget *parent) :
     QWidget(parent),
@@ -101,33 +103,58 @@ void MedicalRecordManager::on_recordTreeWidget_itemDoubleClicked(QTreeWidgetItem
     medicalChart->show();
 
 
-    QPixmap pixmap = medicalChart->grab();
-//    pixmap.save("medicalChart.png");
+//    QPixmap pixmap = medicalChart->grab();
+////    pixmap.save("medicalChart.png");
 
-    QPrinter *printer = new QPrinter(QPrinter::HighResolution);
-    printer->setFullPage(true);
-//    printer.setOutputFormat(QPrinter::PdfFormat);
-//    printer.setOutputFileName("medicalChart.pdf");
+//    QPrinter *printer = new QPrinter(QPrinter::HighResolution);
+//    printer->setFullPage(true);
+////    printer.setOutputFormat(QPrinter::PdfFormat);
+////    printer.setOutputFileName("medicalChart.pdf");
 
-    QPrintDialog* printDialog = new QPrintDialog(printer, this);
-    if (printDialog->exec() == QDialog::Accepted) {
-        // print ...
-        QPainter painter;
-        if (! painter.begin(printer)) { // failed to open file
-            qWarning("failed to open file, is it writable?");
-            return;
-        }
+//    QPrintDialog* printDialog = new QPrintDialog(printer, this);
+//    if (printDialog->exec() == QDialog::Accepted) {
+//        // print ...
+//        QPainter painter;
+//        if (! painter.begin(printer)) { // failed to open file
+//            qWarning("failed to open file, is it writable?");
+//            return;
+//        }
 
-        painter.drawPixmap(0, 0, pixmap);
+//        painter.drawPixmap(0, 0, pixmap);
 
-        if (! printer->newPage()) {
-            qWarning("failed in flushing page to disk, disk full?");
-            return;
-        }
-        painter.end();
-    }
-    delete printer;
-    delete printDialog;
+//        if (! printer->newPage()) {
+//            qWarning("failed in flushing page to disk, disk full?");
+//            return;
+//        }
+//        painter.end();
+//    }
+//    delete printer;
+//    delete printDialog;
+
+
+
+//        QPrinter printer(QPrinter::HighResolution);
+//        printer.setFullPage(true);
+//        printer.setPageSize(QPageSize::A4);
+//        //printer.setOutputFormat(QPrinter::PdfFormat);
+//        //printer.setOutputFileName("test.pdf");
+
+//        QPrintDialog* printDialog = new QPrintDialog(&printer, this);
+//        if (printDialog->exec() == QDialog::Accepted) {
+//            // print …
+//            QPainter painter(&printer);
+//            QPixmap buffer = grab();
+//            //        QRect rect = painter.viewport();
+//            QRect rect = printer.pageRect(QPrinter::DevicePixel).toRect();
+//            painter.drawPixmap(0, 0, buffer.scaled(rect.size(), Qt::KeepAspectRatio, Qt::SmoothTransformation));
+//            painter.end();
+//            //        this->render(&painter);
+//        }
+
+
+
+
+
 
     emit sendPatientReportInfo(patientDetail, reportDetail);
 }
