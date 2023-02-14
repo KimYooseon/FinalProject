@@ -28,8 +28,9 @@ public:
 
 private slots:
     void enrollClient();
-    void quitSlot();
+    void on_pushButton_clicked();
 
+    void changeScreenSlot(int);
 
 private:
     Ui::MainWindow *ui;
@@ -42,8 +43,10 @@ private:
     NetworkManager *networkManager;
     ChoosePatientManager *choosePatientManager;
 
+    QPixmap *pixmap;
 
 signals:
     void requestPID(QString);
+    void sendIP(QString, int);
 };
 #endif // MAINWINDOW_H

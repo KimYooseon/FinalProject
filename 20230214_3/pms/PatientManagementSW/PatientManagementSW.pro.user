@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE QtCreatorProject>
-<!-- Written by QtCreator 8.0.1, 2023-02-14T16:34:50. -->
+<!-- Written by QtCreator 8.0.1, 2023-02-14T18:59:21. -->
 <qtcreator>
  <data>
   <variable>EnvironmentId</variable>
@@ -67,53 +67,7 @@
     <value type="bool" key="AutoTest.Framework.QtQuickTest">true</value>
     <value type="bool" key="AutoTest.Framework.QtTest">true</value>
    </valuemap>
-   <valuemap type="QVariantMap" key="AutoTest.CheckStates">
-    <value type="Qt::CheckState" key="1@C:/20230214_2/pms/PatientManagementSW/choosepatientmanager.cpp:on_treeWidget_itemDoubleClicked">Checked</value>
-    <value type="Qt::CheckState" key="1@C:/20230214_2/pms/PatientManagementSW/choosepatientmanager.cpp:sendedTempData">Checked</value>
-    <value type="Qt::CheckState" key="1@C:/20230214_2/pms/PatientManagementSW/choosepatientmanager.h:ChoosePatientManager">Checked</value>
-    <value type="Qt::CheckState" key="1@C:/20230214_2/pms/PatientManagementSW/enrollmanager.cpp:enrollFinished">Checked</value>
-    <value type="Qt::CheckState" key="1@C:/20230214_2/pms/PatientManagementSW/enrollmanager.cpp:newPIDSended">Checked</value>
-    <value type="Qt::CheckState" key="1@C:/20230214_2/pms/PatientManagementSW/enrollmanager.cpp:on_selectFilePushButton_clicked">Checked</value>
-    <value type="Qt::CheckState" key="1@C:/20230214_2/pms/PatientManagementSW/enrollmanager.h:EnrollManager">Checked</value>
-    <value type="Qt::CheckState" key="1@C:/20230214_2/pms/PatientManagementSW/imagemanager.h:ImageManager">Checked</value>
-    <value type="Qt::CheckState" key="1@C:/20230214_2/pms/PatientManagementSW/mainwindow.cpp:enrollClient">Checked</value>
-    <value type="Qt::CheckState" key="1@C:/20230214_2/pms/PatientManagementSW/mainwindow.h:MainWindow">Checked</value>
-    <value type="Qt::CheckState" key="1@C:/20230214_2/pms/PatientManagementSW/mainwindow.h:quitSlot">Checked</value>
-    <value type="Qt::CheckState" key="1@C:/20230214_2/pms/PatientManagementSW/medicalrecordmanager.cpp:addNewRecord">Checked</value>
-    <value type="Qt::CheckState" key="1@C:/20230214_2/pms/PatientManagementSW/medicalrecordmanager.cpp:on_recordTreeWidget_itemDoubleClicked">Checked</value>
-    <value type="Qt::CheckState" key="1@C:/20230214_2/pms/PatientManagementSW/medicalrecordmanager.cpp:recordDataSended">Checked</value>
-    <value type="Qt::CheckState" key="1@C:/20230214_2/pms/PatientManagementSW/medicalrecordmanager.h:MedicalRecordManager">Checked</value>
-    <value type="Qt::CheckState" key="1@C:/20230214_2/pms/PatientManagementSW/networkmanager.cpp:connectToMainHost">Checked</value>
-    <value type="Qt::CheckState" key="1@C:/20230214_2/pms/PatientManagementSW/networkmanager.cpp:disconnect">Checked</value>
-    <value type="Qt::CheckState" key="1@C:/20230214_2/pms/PatientManagementSW/networkmanager.cpp:downloadOrNotSlot">Checked</value>
-    <value type="Qt::CheckState" key="1@C:/20230214_2/pms/PatientManagementSW/networkmanager.cpp:makeFiles">Checked</value>
-    <value type="Qt::CheckState" key="1@C:/20230214_2/pms/PatientManagementSW/networkmanager.cpp:newDataSended">Checked</value>
-    <value type="Qt::CheckState" key="1@C:/20230214_2/pms/PatientManagementSW/networkmanager.cpp:receiveData">Checked</value>
-    <value type="Qt::CheckState" key="1@C:/20230214_2/pms/PatientManagementSW/networkmanager.cpp:receiveFile">Checked</value>
-    <value type="Qt::CheckState" key="1@C:/20230214_2/pms/PatientManagementSW/networkmanager.h:NetworkManager">Checked</value>
-    <value type="Qt::CheckState" key="1@C:/20230214_2/pms/PatientManagementSW/patientinfomanager.cpp:delFlagSended">Checked</value>
-    <value type="Qt::CheckState" key="1@C:/20230214_2/pms/PatientManagementSW/patientinfomanager.cpp:fileSendedSlot">Checked</value>
-    <value type="Qt::CheckState" key="1@C:/20230214_2/pms/PatientManagementSW/patientinfomanager.cpp:inWaitListSlot">Checked</value>
-    <value type="Qt::CheckState" key="1@C:/20230214_2/pms/PatientManagementSW/patientinfomanager.cpp:on_WaitPushButton_clicked">Checked</value>
-    <value type="Qt::CheckState" key="1@C:/20230214_2/pms/PatientManagementSW/patientinfomanager.cpp:on_changePhotoPushButton_clicked">Checked</value>
-    <value type="Qt::CheckState" key="1@C:/20230214_2/pms/PatientManagementSW/patientinfomanager.cpp:on_deletePushButton_clicked">Checked</value>
-    <value type="Qt::CheckState" key="1@C:/20230214_2/pms/PatientManagementSW/patientinfomanager.cpp:on_modifyPushButton_clicked">Checked</value>
-    <value type="Qt::CheckState" key="1@C:/20230214_2/pms/PatientManagementSW/patientinfomanager.cpp:on_searchPushButton_clicked">Checked</value>
-    <value type="Qt::CheckState" key="1@C:/20230214_2/pms/PatientManagementSW/patientinfomanager.cpp:searchDataSended">Checked</value>
-    <value type="Qt::CheckState" key="1@C:/20230214_2/pms/PatientManagementSW/patientinfomanager.cpp:sendedAWLRequest">Checked</value>
-    <value type="Qt::CheckState" key="1@C:/20230214_2/pms/PatientManagementSW/patientinfomanager.cpp:sendedNewDataForShow">Checked</value>
-    <value type="Qt::CheckState" key="1@C:/20230214_2/pms/PatientManagementSW/patientinfomanager.h:PatientInfoManager">Checked</value>
-    <value type="Qt::CheckState" key="1@C:/20230214_2/pms/PatientManagementSW/patientstatusmanager.cpp:PIDsendedtoWaitList">Checked</value>
-    <value type="Qt::CheckState" key="1@C:/20230214_2/pms/PatientManagementSW/patientstatusmanager.cpp:delPIDSended">Checked</value>
-    <value type="Qt::CheckState" key="1@C:/20230214_2/pms/PatientManagementSW/patientstatusmanager.cpp:oldListSended">Checked</value>
-    <value type="Qt::CheckState" key="1@C:/20230214_2/pms/PatientManagementSW/patientstatusmanager.cpp:on_paymentPushButton_clicked">Checked</value>
-    <value type="Qt::CheckState" key="1@C:/20230214_2/pms/PatientManagementSW/patientstatusmanager.cpp:on_shootRequestPushButton_clicked">Checked</value>
-    <value type="Qt::CheckState" key="1@C:/20230214_2/pms/PatientManagementSW/patientstatusmanager.cpp:on_waitPaymentTreeWidget_itemClicked">Checked</value>
-    <value type="Qt::CheckState" key="1@C:/20230214_2/pms/PatientManagementSW/patientstatusmanager.cpp:on_waitTreatmentTreeWidget_itemClicked">Checked</value>
-    <value type="Qt::CheckState" key="1@C:/20230214_2/pms/PatientManagementSW/patientstatusmanager.cpp:statusRequestSended">Checked</value>
-    <value type="Qt::CheckState" key="1@C:/20230214_2/pms/PatientManagementSW/patientstatusmanager.cpp:waitInfoSended">Checked</value>
-    <value type="Qt::CheckState" key="1@C:/20230214_2/pms/PatientManagementSW/patientstatusmanager.h:PatientStatusManager">Checked</value>
-   </valuemap>
+   <valuemap type="QVariantMap" key="AutoTest.CheckStates"/>
    <value type="int" key="AutoTest.RunAfterBuild">0</value>
    <value type="bool" key="AutoTest.UseGlobal">true</value>
    <valuemap type="QVariantMap" key="ClangTools">
@@ -281,9 +235,8 @@
     <valuelist type="QVariantList" key="CustomOutputParsers"/>
     <value type="int" key="PE.EnvironmentAspect.Base">2</value>
     <valuelist type="QVariantList" key="PE.EnvironmentAspect.Changes"/>
-    <value type="QString" key="ProjectExplorer.ProjectConfiguration.DisplayName">PatientManagementSW2</value>
-    <value type="QString" key="ProjectExplorer.ProjectConfiguration.Id">Qt4ProjectManager.Qt4RunConfiguration:C:/20230214_2/pms/PatientManagementSW/PatientManagementSW.pro</value>
-    <value type="QString" key="ProjectExplorer.RunConfiguration.BuildKey">C:/20230214_2/pms/PatientManagementSW/PatientManagementSW.pro</value>
+    <value type="QString" key="ProjectExplorer.ProjectConfiguration.Id">Qt4ProjectManager.Qt4RunConfiguration:C:/20230214_3/pms/PatientManagementSW/PatientManagementSW.pro</value>
+    <value type="QString" key="ProjectExplorer.RunConfiguration.BuildKey">C:/20230214_3/pms/PatientManagementSW/PatientManagementSW.pro</value>
     <value type="bool" key="RunConfiguration.UseCppDebugger">false</value>
     <value type="bool" key="RunConfiguration.UseCppDebuggerAuto">true</value>
     <value type="bool" key="RunConfiguration.UseLibrarySearchPath">true</value>

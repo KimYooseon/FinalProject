@@ -8,7 +8,7 @@
 #include "patientstatusmanager.h"
 #include "networkmanager.h"
 #include "choosepatientmanager.h"
-
+#include <QPixmap>
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -16,9 +16,37 @@ MainWindow::MainWindow(QWidget *parent)
 {
     ui->setupUi(this);
 
+
+    this->resize(800, 570);
+
+    // 로그인 이미지 설정
+    pixmap = new QPixmap();
+    pixmap->load("./login.png");
+    pixmap->scaled(180,180,Qt::IgnoreAspectRatio);
+    ui->label_11->setPixmap(pixmap->scaled(ui->label_11->size(), Qt::IgnoreAspectRatio, Qt::SmoothTransformation));
+
+
+
+
+
+
     ui->enrollButton->setIcon(QIcon("./enroll.png"));
 
-    this->showMaximized();
+
+    ui->pushButton->setStyleSheet("QPushButton { "
+                                  "border-radius: 10px;"
+                                  "background-color: rgb(255, 162, 0);"
+                                  "border-radius:10px;"
+                                  "color:#ffffff;"
+                                  "outline: 0; "
+                              "}"
+                                  "QPushButton:hover { "
+                                    "background-color: rgb(255, 150, 0);"
+                                    "border-radius:10px;"
+                                    "color:#ffffff;"
+                                    "outline: 0; "
+                                "}");
+
 
 
     ui->enrollButton->setStyleSheet("QPushButton { "
@@ -167,6 +195,11 @@ MainWindow::MainWindow(QWidget *parent)
 
 
     connect(patientInfoManager, SIGNAL(sendWaitInfoToWaitList(QString, QString)), patientStatusManager, SLOT(waitInfoSended(QString, QString)));
+
+
+    connect(this, SIGNAL(sendIP(QString, int)), networkManager, SLOT(sendedIP(QString, int)));
+
+    connect(networkManager, SIGNAL(changeScreenSignal(int)), this, SLOT(changeScreenSlot(int)));
 }
 
 MainWindow::~MainWindow()
@@ -183,3 +216,28 @@ void MainWindow::enrollClient()
 }
 
 
+
+void MainWindow::on_pushButton_clicked()
+{
+    QString IP = ui->ipLineEdit->text();
+    int PORT = ui->portLineEdit->text().toInt();
+
+    emit sendIP(IP, PORT);
+
+}
+
+//flag가 0이면 로그인 화면, 1이면 메인화면
+void MainWindow::changeScreenSlot(int flag)
+{
+    if(flag == 1)
+    {
+        this->showMaximized();
+        ui->stackedWidget->setCurrentIndex(0);
+
+    }
+    else if(flag == 0)
+    {
+        ui->stackedWidget->setCurrentIndex(1);
+        this->resize(800, 575);
+    }
+}

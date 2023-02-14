@@ -12,14 +12,12 @@ NetworkManager::NetworkManager(QObject *parent)
     : QObject{parent}
 {
 
-    connectSocket();
-
 }
 
-void NetworkManager::connectSocket()
+void NetworkManager::connectSocket(QString ip, int port)
 {
     socket = new QTcpSocket(this);
-    socket->connectToHost("192.168.0.10", 8000);
+    socket->connectToHost(ip, port);
 
     connect(socket, SIGNAL(readyRead()), this, SLOT(receiveData()));
     connect(socket, SIGNAL(disconnected()), SLOT(disconnect()));
@@ -30,16 +28,20 @@ void NetworkManager::connectSocket()
         qDebug()<<("DataSocket connect fail\n");
     }
     else{
+        connectCount = 1;   //연결된 상태
+
         qDebug()<<("DataSocket connect\n");
         QString connectData = "SEN^CNT<CR>PMS<CR>NULL";
 
         QByteArray sendTest = connectData.toStdString().c_str();
         socket->write(sendTest);
+
+        emit changeScreenSignal(1);
     }
 
 
     fileSocket = new QTcpSocket(this);
-    fileSocket->connectToHost("192.168.0.10", 8001);
+    fileSocket->connectToHost(ip, port+1);
 
     if(fileSocket->waitForConnected(1000))
         fileSocket->write("CNT<CR>PMS<CR>NULL");
@@ -57,31 +59,26 @@ bool NetworkManager::connectToMainHost(QString host)
     return socket->waitForConnected();
 }
 
+//연결이 잘 되다가 끊겼을 때
 void NetworkManager::disconnect()
 {
+    if(connectCount == 1){
 
-    int delButtonNum = QMessageBox::critical(nullptr, tr("경고"),
-                                             tr("서버와의 연결이 끊긴 상태입니다.\n"
-                                                "재접속하시려면 Yes, 프로그램을 종료하려면 No를 클릭해주세요.")
-                                             , QMessageBox::Yes | QMessageBox::No);
+        QMessageBox::critical(nullptr, tr("경고"),
+                              tr("서버와의 연결이 끊어졌습니다"));
+        connectCount = 0;   //로그인화면으로 돌아가니까 0으로 초기화
+        emit changeScreenSignal(0);
 
-    switch (delButtonNum) {
-    case QMessageBox::Yes:
+    }
+    else if(connectCount == 0)
     {
-        socket->deleteLater();
-        fileSocket->deleteLater();
+        QMessageBox::critical(nullptr, tr("경고"),
+                              tr("서버 연결이 불가능한 상태입니다."));
+        return;
 
-        connectSocket();
-
-        break;
     }
-    case QMessageBox::No:
-    {
-        qDebug() <<"요깅";
-        qApp->quit();
-    }
-    }
-
+    socket->deleteLater();
+    fileSocket->deleteLater();
 }
 
 
@@ -301,3 +298,11 @@ void NetworkManager::receiveData()
     }
 }
 
+void NetworkManager::sendedIP(QString ip, int port)
+{
+    qDebug() << "ip: " << ip;
+    hostIP = ip;
+    hostPORT = port;
+
+    connectSocket(ip, port);
+}

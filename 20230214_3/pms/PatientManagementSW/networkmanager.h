@@ -17,7 +17,11 @@ public:
 public slots:
 
     bool writeData(QByteArray data);
-    void connectSocket();
+    void connectSocket(QString, int);
+
+
+    void sendedIP(QString, int);
+
 
 private slots:
     void newDataSended(QString);
@@ -78,7 +82,13 @@ private:
     int downButtonClicked =0;
 
 
+    //0일때는 서버 연결 시도를 했는데 연결 안 된 상태, 1일때는 연결되었다가 서버가 꺼져 연결 끊긴 상태
     int connectCount=0;
+
+
+    QString hostIP = "";
+    int hostPORT = 8000;
+
 
 signals:
     void sendNewPID(QString);
@@ -104,6 +114,9 @@ signals:
    void sendAWLRequest(QString);
 
    void quitRequest();
+
+   void changeScreenSignal(int);   //0이면 로그인 화면, 1이면 메인화면
+
 };
 
 #endif // NETWORKMANAGER_H
