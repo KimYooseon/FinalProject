@@ -1,0 +1,62 @@
+#ifndef PATIENTSTATUSMANAGER_H
+#define PATIENTSTATUSMANAGER_H
+
+#include <QWidget>
+#include <QTreeWidget>
+
+#include <QtTest/QtTest>
+#include <QTest>
+
+namespace Ui {
+class PatientStatusManager;
+}
+
+class PatientStatusManager : public QWidget
+{
+    Q_OBJECT
+
+public:
+    explicit PatientStatusManager(QWidget *parent = nullptr);
+    ~PatientStatusManager();
+
+private:
+    Ui::PatientStatusManager *ui;
+    QString treatPID, treatName, payPID, payName;
+
+    //QTreeWidgetItem* row;
+    QTreeWidgetItem* selectedTreatRow, *selectedPayRow;
+    QString tempTreatPID;
+
+    QMap<int,QString> oldList;
+
+private slots:
+    //void waitInfoSended(QString, QString);
+    void waitInfoSended(QString, QString);
+    void on_waitPaymentTreeWidget_itemClicked(QTreeWidgetItem *item, int column);
+    void on_waitTreatmentTreeWidget_itemClicked(QTreeWidgetItem *item, int column);
+    void on_shootRequestPushButton_clicked();
+    //void sendSRQRequest(QString);
+
+
+    //void SRQRequestSended(QString);
+
+    void statusRequestSended(QString);
+
+    void on_paymentPushButton_clicked();
+
+    void PIDsendedtoWaitList(QString);
+
+    void delPIDSended(QString);
+
+    void oldListSended(QString);
+
+
+
+signals:
+    void sendRequest(QString);
+    void inWaitListSignal(int);
+    void sendDelFlag(int);
+    void sendPayInfo(QString);
+};
+
+#endif // PATIENTSTATUSMANAGER_H
