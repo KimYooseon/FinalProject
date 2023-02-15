@@ -24,8 +24,6 @@ public:
     MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
 
-
-
 private slots:
     void enrollClient();
     void on_pushButton_clicked();
