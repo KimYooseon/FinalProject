@@ -20,7 +20,7 @@ EnrollManager::EnrollManager(QWidget *parent) :
     ui->setupUi(this);
     this->setFixedSize(782, 650);
 
-    //스타일시트 설정
+    // 스타일시트 설정
     QString enrollButtonStyle = "QPushButton { "
                                 "background-color: #ED8817;"
                                 "border-radius:10px;"
@@ -56,7 +56,7 @@ EnrollManager::EnrollManager(QWidget *parent) :
     connect(ui->enrollPushButton, SIGNAL(clicked()), this, SLOT(enrollFinished()));
 
 
-    //기본 이미지 설정
+    // 기본 이미지 설정
     pixmap = new QPixmap();
     pixmap->load(":/img/man.png");
     pixmap->scaled(180,180,Qt::IgnoreAspectRatio);
@@ -69,7 +69,7 @@ EnrollManager::~EnrollManager()
     delete ui;
 }
 
-//환자등록을 완료했을 때. DB로 적은 정보를 보내 새로운 환자 정보가 저장되도록 한다
+// 환자등록을 완료했을 때. DB로 적은 정보를 보내 새로운 환자 정보가 저장되도록 한다
 void EnrollManager::enrollFinished()
 {
     QString name, sex, date, tel, address, memo;
@@ -87,7 +87,7 @@ void EnrollManager::enrollFinished()
     memo = ui->memoTextEdit->toPlainText();
 
 
-    //필수사항 입력하지 않았을 때 환자 등록되지 않도록 만들기(메모 빼고는 모두 필수 입력사항)
+    // 필수사항 입력하지 않았을 때 환자 등록되지 않도록 만들기(메모 빼고는 모두 필수 입력사항)
     if(name == "" || sex == "" || date == "" || tel == "" || address == "")
     {
         QMessageBox::critical(this, tr("경고"), tr("필수 환자 정보(*)를 모두 입력해주세요."));
@@ -97,7 +97,7 @@ void EnrollManager::enrollFinished()
     QString editFlag = "1";
     QString saveFileName;
 
-    //선택했던 파일을 디버그 파일의 Face폴더에 저장
+    // 선택했던 파일을 디버그 파일의 Face폴더에 저장
     if(fileName.length()>0)
     {
         QDir dir(QString("./Face"));
@@ -120,10 +120,10 @@ void EnrollManager::enrollFinished()
                              tr("신규환자 등록이 완료되었습니다."));
 
 
-    //환자 등록 후에는 enrollmanager를 숨김
+    // 환자 등록 후에는 enrollmanager를 숨김
     this->hide();
 
-    //등록 화면 초기화
+    // 등록 화면 초기화
     ui->nameLineEdit->clear();
     ui->birthDateEdit->clear();
     ui->telLineEdit->clear();
@@ -142,7 +142,7 @@ void EnrollManager::enrollFinished()
     ui->femaleRadioButton->setAutoExclusive(true);
 }
 
-//mainWindow에서 등록버튼 클릭하면 서버에서 새로운 환자의 pid를 반환해주는데, 이 떄 이 pid를 받는 부분
+// mainWindow에서 등록버튼 클릭하면 서버에서 새로운 환자의 pid를 반환해주는데, 이 떄 이 pid를 받는 부분
 void EnrollManager::newPIDSended(QString sendedPID)
 {
     newPID = sendedPID;
@@ -151,7 +151,7 @@ void EnrollManager::newPIDSended(QString sendedPID)
     ui->pidLineEdit->setText(newPID);
 }
 
-//이미지 파일 선택하는 부분
+// 이미지 파일 선택하는 부분
 void EnrollManager::on_selectFilePushButton_clicked()
 {
     pidPhoto = ui->pidLineEdit->text();

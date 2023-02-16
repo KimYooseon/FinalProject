@@ -24,10 +24,10 @@ MedicalChart::MedicalChart(QWidget *parent) :
     ui->setupUi(this);
     this->setFixedSize(601, 840);
 
-    //프린트 아이콘 설정
+    // 프린트 아이콘 설정
     ui->printPushButton->setIcon(QIcon(":/img/print.png"));
 
-    //오늘의 날짜 설정
+    // 오늘의 날짜 설정
     QString year = QDate::currentDate().toString("yyyy");
     QString month = QDate::currentDate().toString("MM");
     QString day = QDate::currentDate().toString("dd");
@@ -44,7 +44,7 @@ MedicalChart::~MedicalChart()
     delete ui;
 }
 
-//진료기록 차트에 환자 정보와 진료기록 정보를 띄워주는 부분
+// 진료기록 차트에 환자 정보와 진료기록 정보를 띄워주는 부분
 void MedicalChart::patientReportInfoSended(QString patientDetail, QString reportDetail)
 {
     qDebug() << "patientDetail: " << patientDetail;
@@ -80,7 +80,7 @@ void MedicalChart::patientReportInfoSended(QString patientDetail, QString report
 
 }
 
-//프린트, pdf저장 기능
+// 프린트, pdf저장 기능
 void MedicalChart::on_printPushButton_clicked()
 {
     QPrinter printer(QPrinter::HighResolution);

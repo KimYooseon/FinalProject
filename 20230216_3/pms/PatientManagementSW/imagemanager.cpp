@@ -20,7 +20,7 @@ ImageManager::ImageManager(QWidget *parent) :
 {
     ui->setupUi(this);
 
-    //라벨스타일 설정
+    // 라벨스타일 설정
     QString labelStyle = "QLabel { "
                               "background-color: rgb(150, 150, 150);"
                             "border-radius:10px;"
@@ -29,7 +29,7 @@ ImageManager::ImageManager(QWidget *parent) :
                           "}";
     ui->label_4->setStyleSheet(labelStyle);
 
-    //라벨에 그림자 설정
+    // 라벨에 그림자 설정
     QGraphicsDropShadowEffect *effect = new QGraphicsDropShadowEffect;
     effect->setBlurRadius(5);
     effect->setXOffset(5);
@@ -43,7 +43,7 @@ ImageManager::~ImageManager()
     delete ui;
 }
 
-//이미지를 불러오는 함수
+// 이미지를 불러오는 함수
 void ImageManager::reloadImages(QString id)
 {
     QDir dir("./Image");
@@ -56,7 +56,7 @@ void ImageManager::reloadImages(QString id)
     ui->imageListWidget->clear();
 
     for(int i = 0; i < fileInfoList.count(); i++) {
-        QListWidgetItem* item = new QListWidgetItem(QIcon(dir.path() + "/" + fileInfoList.at(i).fileName()), NULL, ui->imageListWidget); //, QListWidgetItem::UserType);
+        QListWidgetItem* item = new QListWidgetItem(QIcon(dir.path() + "/" + fileInfoList.at(i).fileName()), NULL, ui->imageListWidget); // , QListWidgetItem::UserType);
 
         item->setStatusTip(fileInfoList.at(i).fileName());
 
@@ -64,11 +64,11 @@ void ImageManager::reloadImages(QString id)
 
     };
 
-    dir.removeRecursively();    //화면에 사진 띄웠으면 해당 폴더 삭제
+    dir.removeRecursively();    // 화면에 사진 띄웠으면 해당 폴더 삭제
 
 }
 
-//검색한 환자가 DB에 있는지 확인하고, 있으면 해당 pid를 받아 이미지를 띄우는 함수를 호출
+// 검색한 환자가 DB에 있는지 확인하고, 있으면 해당 pid를 받아 이미지를 띄우는 함수를 호출
 void ImageManager::PSEDataSended(QString id)
 {
     ui->imageListWidget->clear();
@@ -78,7 +78,7 @@ void ImageManager::PSEDataSended(QString id)
     reloadImages(id);
 }
 
-//환자 삭제를 하면 이미지 리스트에 띄워져있던 이미지를 clear해주는 부분
+// 환자 삭제를 하면 이미지 리스트에 띄워져있던 이미지를 clear해주는 부분
 void ImageManager::delPIDSendedToImg(QString id)
 {
     ui->imageListWidget->clear();

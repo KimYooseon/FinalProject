@@ -25,7 +25,7 @@ MedicalRecordManager::MedicalRecordManager(QWidget *parent) :
 {
     ui->setupUi(this);
 
-    //라벨 스타일 설정
+    // 라벨 스타일 설정
     QString labelStyle = "QLabel { "
                          "background-color: rgb(150, 150, 150);"
                          "border-radius:10px;"
@@ -34,7 +34,7 @@ MedicalRecordManager::MedicalRecordManager(QWidget *parent) :
                          "}";
     ui->label_7->setStyleSheet(labelStyle);
 
-    //라벨에 설정할 그림자 효과
+    // 라벨에 설정할 그림자 효과
     QGraphicsDropShadowEffect *effect = new QGraphicsDropShadowEffect;
     effect->setBlurRadius(5);
     effect->setXOffset(5);
@@ -42,7 +42,7 @@ MedicalRecordManager::MedicalRecordManager(QWidget *parent) :
     effect->setColor(QColor(220,220,220));
     ui->label_7->setGraphicsEffect(effect);
 
-    //진료기록을 띄울 때는 새 창으로 띄움
+    // 진료기록을 띄울 때는 새 창으로 띄움
     medicalChart = new MedicalChart(0);
     connect(this, SIGNAL(sendPatientReportInfo(QString, QString)), medicalChart, SLOT(patientReportInfoSended(QString, QString)));
 }
@@ -52,8 +52,8 @@ MedicalRecordManager::~MedicalRecordManager()
     delete ui;
 }
 
-//검색한 환자에 대한 진료기록들을 가져옴
-void MedicalRecordManager::recordDataSended(QString sendedID, QString sendedData)   // id는 필요없을수도 있겠다
+// 검색한 환자에 대한 진료기록들을 가져옴
+void MedicalRecordManager::recordDataSended(QString sendedID, QString sendedData)
 {
     qDebug() << "sendedID, sendedData: " << sendedID << ", "<<sendedData;
 
@@ -62,7 +62,7 @@ void MedicalRecordManager::recordDataSended(QString sendedID, QString sendedData
     if(sendedData == "<NEL>")
         return;
 
-    //동명이인일 경우 진료기록 데이터를 묶어 보내지 않기 때문에 <NEL>을 포함하지 않을 시를 대비해 예외처리
+    // 동명이인일 경우 진료기록 데이터를 묶어 보내지 않기 때문에 <NEL>을 포함하지 않을 시를 대비해 예외처리
     if(sendedData.contains("<NEL>", Qt::CaseInsensitive) == false)
         return;
 
@@ -78,7 +78,7 @@ void MedicalRecordManager::recordDataSended(QString sendedID, QString sendedData
     patientDetail = sendedID + "|" + sendedData.split("<NEL>")[0];
     qDebug() << "patientDetail" << patientDetail;
 
-    //진료기록 목록이 띄워지는 recordTreeWidget에 저장
+    // 진료기록 목록이 띄워지는 recordTreeWidget에 저장
     QString rowData, reportID, doctorID, reportDate, dentistName;
     for(int i=1; i<sendedData.count("<NEL>"); i++)
     {
@@ -101,7 +101,7 @@ void MedicalRecordManager::recordDataSended(QString sendedID, QString sendedData
     }
 }
 
-//recordTreeWidget에서 특정 진료기록을 더블클릭하면 상세 진료기록 창을 띄워줌
+// recordTreeWidget에서 특정 진료기록을 더블클릭하면 상세 진료기록 창을 띄워줌
 void MedicalRecordManager::on_recordTreeWidget_itemDoubleClicked(QTreeWidgetItem *item, int column)
 {
     int currentRow = ui->recordTreeWidget->currentIndex().row();
@@ -114,10 +114,10 @@ void MedicalRecordManager::on_recordTreeWidget_itemDoubleClicked(QTreeWidgetItem
 }
 
 
-//처방전 작성하면 환자진료기록 바로 띄우기
+// 처방전 작성하면 환자진료기록 바로 띄우기
 void MedicalRecordManager::addNewRecord(QString newRecordInfo)
 {
-    //다시 서치한거같은 효과 주기
-    QString searchData = "SEN^PSE<CR>0<CR>" + newRecordInfo.split("<CR>")[1]; //pid담아서 pse를 써서 보냄
+    // 다시 서치한거같은 효과 주기
+    QString searchData = "SEN^PSE<CR>0<CR>" + newRecordInfo.split("<CR>")[1]; // pid담아서 pse를 써서 보냄
     emit sendReSearchData(searchData);
 }

@@ -89,7 +89,7 @@ PatientInfoManager::PatientInfoManager(QWidget *parent) :
                             "height: 16px;"
                             "}";
 
-    //라벨 스타일 설정
+    // 라벨 스타일 설정
     QString labelStyle = "QLabel { "
                          "background-color: rgb(150, 150, 150);"
                          "border-radius:10px;"
@@ -97,7 +97,7 @@ PatientInfoManager::PatientInfoManager(QWidget *parent) :
                          "outline: 0; "
                          "}";
 
-    //사진 변경 버튼 스타일 설정
+    // 사진 변경 버튼 스타일 설정
     QString changePhotoPushButtonStyle = "QPushButton { "
                                          "background-color: rgb(170, 170, 170);"
                                          "border-radius:5px;"
@@ -195,7 +195,7 @@ void PatientInfoManager::on_searchPushButton_clicked()
     ui->searchLineEdit->clear();
 }
 
-//검색한 환자의 데이터를 서버로부터 전달받아 화면에 띄울지 말지를 결정하는 함수
+// 검색한 환자의 데이터를 서버로부터 전달받아 화면에 띄울지 말지를 결정하는 함수
 void PatientInfoManager::searchDataSended(QString id, QString data)
 {
     // 받은 데이터에 P가 들어가 있지 않고(pid가 오면 동명이인이 아닌 사람이 정상적으로 검색된 것임) id가 2이상일 경우(즉, 동명이인일 경우)
@@ -264,7 +264,7 @@ void PatientInfoManager::searchDataSended(QString id, QString data)
     ui->clientInfoTableWidget->setItem(5, 0, new QTableWidgetItem(address));
     ui->clientInfoTableWidget->setItem(6, 0, new QTableWidgetItem(memo));
 
-    //환자 사진 띄우기
+    // 환자 사진 띄우기
     pixmap = new QPixmap();
     pixmap->load(QString("./Face/%1.png").arg(pid));
     pixmap->scaled(200,180,Qt::IgnoreAspectRatio);
@@ -280,7 +280,7 @@ void PatientInfoManager::searchDataSended(QString id, QString data)
 
 }
 
-//환자 삭제 버튼을 클릭했을 때 Yes를 누르면 삭제할 환자의 정보를 patientStatusManager쪽으로 보내줌(대기리스트에 있는지 없는지 확인하기 위함)
+// 환자 삭제 버튼을 클릭했을 때 Yes를 누르면 삭제할 환자의 정보를 patientStatusManager쪽으로 보내줌(대기리스트에 있는지 없는지 확인하기 위함)
 void PatientInfoManager::on_deletePushButton_clicked()
 {
     int delButtonNum = QMessageBox::critical(this, tr("경고"),
@@ -304,8 +304,8 @@ void PatientInfoManager::on_deletePushButton_clicked()
 
 }
 
-//환자 정보를 지울수 있는 상태면 0, 대기리스트에 올라가 있는 환자라서 지울 수 없으면 1
-//=>int값을 반환받아 삭제할지 말지를 결정. 삭제할 것이라면 환자 얼굴 파일을 삭제하고, patientStatusManager쪽에서는 삭제할 환자 정보를 서버로 전송
+// 환자 정보를 지울수 있는 상태면 0, 대기리스트에 올라가 있는 환자라서 지울 수 없으면 1
+// =>int값을 반환받아 삭제할지 말지를 결정. 삭제할 것이라면 환자 얼굴 파일을 삭제하고, patientStatusManager쪽에서는 삭제할 환자 정보를 서버로 전송
 void PatientInfoManager::delFlagSended(int delFlag)
 {
     if(delFlag == 0)
@@ -338,7 +338,7 @@ void PatientInfoManager::delFlagSended(int delFlag)
 }
 
 
-//대기리스트에 추가 시도
+// 대기리스트에 추가 시도
 void PatientInfoManager::on_WaitPushButton_clicked()
 {
     // 이름과 pid는 바뀌지 않는 정보지만 나머지 정보는 검색 후에 수정했을 수도 있으니 현재 테이블에 저장되어있던 값을 가지고 와 저장해준후 서버로 전송
@@ -354,7 +354,7 @@ void PatientInfoManager::on_WaitPushButton_clicked()
 
 }
 
-//대기명단에 있는지 patientStatusManager쪽에서 확인 후 1이면 이미 대기명단에 있는 환자이므로 return, 0이면 대기명단에 없는 환자이므로 서버로 해당 정보 보내줌(patientStatusManager쪽에서는 확인 후 대기명단에 정보를 추가했을 것)
+// 대기명단에 있는지 patientStatusManager쪽에서 확인 후 1이면 이미 대기명단에 있는 환자이므로 return, 0이면 대기명단에 없는 환자이므로 서버로 해당 정보 보내줌(patientStatusManager쪽에서는 확인 후 대기명단에 정보를 추가했을 것)
 void PatientInfoManager::inWaitListSlot(int inWaitListOrNot)
 {
     if(inWaitListOrNot == 1)
@@ -369,7 +369,7 @@ void PatientInfoManager::inWaitListSlot(int inWaitListOrNot)
     }
 }
 
-//환자 수정 버튼을 클릭했을 때. 정보를 수정하고 DB쪽으로 수정된 정보를 보냄
+// 환자 수정 버튼을 클릭했을 때. 정보를 수정하고 DB쪽으로 수정된 정보를 보냄
 void PatientInfoManager::on_modifyPushButton_clicked()
 {
     // 네트워크쪽으로 정보 넘겨주도록 signal emit하고 mainwindow에서 연결하고 서버에 넘겨서 update문으로 db 테이블 수정
@@ -390,7 +390,7 @@ void PatientInfoManager::on_modifyPushButton_clicked()
 
 }
 
-//이전에 검색한 환자의 이미지 파일이 완전히 다운로드 된 상태인지를 확인. 아직 다운로드되기 전이라면 새로운 환자 검색이 불가능하도록 함
+// 이전에 검색한 환자의 이미지 파일이 완전히 다운로드 된 상태인지를 확인. 아직 다운로드되기 전이라면 새로운 환자 검색이 불가능하도록 함
 void PatientInfoManager::fileSendedSlot(int fileSendedSignal)
 {
     // 파일이 완전히 전송되었다면 Flag가 0에서 1로 바뀌었을 것
@@ -461,7 +461,7 @@ void PatientInfoManager::sendedNewDataForShow(QString id, QString data)
     emit cleanImageSignal();
 }
 
-//환자 사진 변경
+// 환자 사진 변경
 void PatientInfoManager::on_changePhotoPushButton_clicked()
 {
     QDir dir(QString("./Face"));

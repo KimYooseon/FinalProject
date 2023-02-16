@@ -84,7 +84,7 @@ private:
     qint64 byteReceived = 0;
     QFile* file;
     QByteArray inBlock;
-    QString fileName;                           // Receiving FileName
+    QString fileName;               // Receiving FileName
     qint64 byteToWrite;             // File Size per a block
     QByteArray outBlock;            // Block for sending
     qint64 loadSize;                // File Size

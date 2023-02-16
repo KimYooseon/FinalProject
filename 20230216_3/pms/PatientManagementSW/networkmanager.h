@@ -52,7 +52,7 @@ private:
 
 
     QTcpSocket *fileSocket;
-    QString fileName;                           // Receiving FileName
+    QString fileName;
 
     QByteArray allFile;
 
@@ -65,7 +65,7 @@ private:
     int downButtonClicked =0;
 
 
-    //0일때는 서버 연결 시도를 했는데 연결 안 된 상태, 1일때는 연결되었다가 서버가 꺼져 연결 끊긴 상태
+    // 0일때는 서버 연결 시도를 했는데 연결 안 된 상태, 1일때는 연결되었다가 서버가 꺼져 연결 끊긴 상태
     int connectCount=0;
 
 
@@ -93,7 +93,7 @@ signals:
    void sendAWLRequest(QString);
 
 
-   void changeScreenSignal(int);   //0이면 로그인 화면, 1이면 메인화면
+   void changeScreenSignal(int);   // 0이면 로그인 화면, 1이면 메인화면
 
    void waitListClearSignal();
 

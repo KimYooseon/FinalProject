@@ -23,12 +23,12 @@ ChoosePatientManager::~ChoosePatientManager()
     delete ui;
 }
 
-//동명이인을 검색했을 경우, 동명이인 환자들의 추가 정보가 나타나면서 사용자로 하여금 검색할 환자를 재선택할 수 있게 해주는 부분
+// 동명이인을 검색했을 경우, 동명이인 환자들의 추가 정보가 나타나면서 사용자로 하여금 검색할 환자를 재선택할 수 있게 해주는 부분
 void ChoosePatientManager::sendedTempData(QString count, QString data)
 {
     ui->treeWidget->clear();
 
-    //환자 선택 창 띄움. 그 창에서 특정 treeWidget 클릭하면 PSE로 해당 PID 보내줘서 다시 검색하도록 만듦(검색 방법은 pid[즉, 0번째 방법)])
+    // 환자 선택 창 띄움. 그 창에서 특정 treeWidget 클릭하면 PSE로 해당 PID 보내줘서 다시 검색하도록 만듦(검색 방법은 pid[즉, 0번째 방법)])
     this->show();
 
     for(int i=0 ; i<count.toInt() ; i++)
@@ -44,7 +44,7 @@ void ChoosePatientManager::sendedTempData(QString count, QString data)
     }
 }
 
-//트리위젯을 더블클릭하면 화면이 꺼자면서 검색하길 원하는 환자의 pid를 전송해줌
+// 트리위젯을 더블클릭하면 화면이 꺼자면서 검색하길 원하는 환자의 pid를 전송해줌
 void ChoosePatientManager::on_treeWidget_itemDoubleClicked(QTreeWidgetItem *item, int column)
 {
     qDebug() << item->text(0);
@@ -53,7 +53,7 @@ void ChoosePatientManager::on_treeWidget_itemDoubleClicked(QTreeWidgetItem *item
 
     QString sendData = "SEN^PSE<CR>0<CR>" + item->text(0);
 
-    //PSE event 보내기
+    // PSE event 보내기
     emit choosePatientSignal(sendData);
 
     ui->treeWidget->clear();

@@ -34,11 +34,11 @@ MainWindow::MainWindow(QWidget *parent)
     pixmap->scaled(180,180,Qt::IgnoreAspectRatio);
     ui->label_11->setPixmap(pixmap->scaled(ui->label_11->size(), Qt::IgnoreAspectRatio, Qt::SmoothTransformation));
 
-    //로그인 화면에서 Enter 누르면 로그인 시도
+    // 로그인 화면에서 Enter 누르면 로그인 시도
     connect(ui->ipLineEdit, SIGNAL(returnPressed()), this, SLOT(on_pushButton_clicked()));
     connect(ui->portLineEdit, SIGNAL(returnPressed()), this, SLOT(on_pushButton_clicked()));
 
-    //로그인 버튼 설정
+    // 로그인 버튼 설정
     ui->pushButton->setStyleSheet("QPushButton { "
                                   "border-radius: 10px;"
                                   "background-color: rgb(255, 162, 0);"
@@ -54,7 +54,7 @@ MainWindow::MainWindow(QWidget *parent)
                                 "}");
 
 
-    //신규환자 등록 설정
+    // 신규환자 등록 설정
     ui->enrollButton->setIcon(QIcon(":/img/enroll.png"));
     ui->enrollButton->setStyleSheet("QPushButton { "
                                     "border-style: outset;"
@@ -75,7 +75,7 @@ MainWindow::MainWindow(QWidget *parent)
                                 "}");
 
 
-    //클래스 생성
+    // 클래스 생성
     imageManager = new ImageManager(this);
     medicalRecordManager = new MedicalRecordManager(this);
     patientInfoManager = new PatientInfoManager(this);
@@ -86,16 +86,16 @@ MainWindow::MainWindow(QWidget *parent)
     choosePatientManager = new ChoosePatientManager(0);
 
 
-    //QTest::qExec(imageManager);
-    //QTest::qExec(medicalRecordManager);
-    //QTest::qExec(patientInfoManager);
-    //QTest::qExec(patientStatusManager);
-    //QTest::qExec(enrollManager);
-    //QTest::qExec(networkManager);
-    //QTest::qExec(choosePatientManager);
+    // QTest::qExec(imageManager);
+    // QTest::qExec(medicalRecordManager);
+    // QTest::qExec(patientInfoManager);
+    // QTest::qExec(patientStatusManager);
+    // QTest::qExec(enrollManager);
+    // QTest::qExec(networkManager);
+    // QTest::qExec(choosePatientManager);
 
 
-    //레이아웃 설정
+    // 레이아웃 설정
     QVBoxLayout *imageLayout = new QVBoxLayout;
     QVBoxLayout *recordLayout = new QVBoxLayout;
     QVBoxLayout *infoLayout = new QVBoxLayout;
@@ -219,7 +219,7 @@ MainWindow::~MainWindow()
 }
 
 
-//환자를 등록할 때 새로운 환자 번호를 서버에 요청하는 부분
+// 환자를 등록할 때 새로운 환자 번호를 서버에 요청하는 부분
 void MainWindow::enrollClient()
 {
     enrollManager->show();
@@ -228,7 +228,7 @@ void MainWindow::enrollClient()
 }
 
 
-//로그인 버튼 클릭하면 네트워크매니저쪽으로 입력한 id와 port번호를 전송
+// 로그인 버튼 클릭하면 네트워크매니저쪽으로 입력한 id와 port번호를 전송
 void MainWindow::on_pushButton_clicked()
 {
     QString IP = ui->ipLineEdit->text();
@@ -238,7 +238,7 @@ void MainWindow::on_pushButton_clicked()
 
 }
 
-//flag가 0이면 로그인 화면, 1이면 메인화면으로 화면 전환
+// flag가 0이면 로그인 화면, 1이면 메인화면으로 화면 전환
 void MainWindow::changeScreenSlot(int flag)
 {
     if(flag == 1)
