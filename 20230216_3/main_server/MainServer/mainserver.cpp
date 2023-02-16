@@ -1,3 +1,12 @@
+/*
+ * 프로그램명 : MainServer
+ * 파일명 : mainserver.cpp
+ * 설명 : PMS SW, 이미지 뷰어 SW, 촬영 SW와 연결되어 데이터를 주고받는 서버
+ * 작성자 : 김유선
+ * 최종 수정일 : 2023.02.16
+ */
+
+
 #include "mainserver.h"
 #include "ui_mainserver.h"
 #include <QTcpServer>

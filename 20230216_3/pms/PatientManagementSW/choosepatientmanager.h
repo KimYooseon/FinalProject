@@ -4,7 +4,7 @@
  * 설명 : 동명이인 처리
  * 작성자 : 김유선
  * 최종 수정일 : 2023.02.16
-*/
+ */
 
 
 #ifndef CHOOSEPATIENTMANAGER_H

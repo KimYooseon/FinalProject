@@ -1,3 +1,12 @@
+/*
+ * 프로그램명 : MainServer
+ * 파일명 : main.cpp
+ * 설명 : 메인서버
+ * 작성자 : 김유선
+ * 최종 수정일 : 2023.02.16
+ */
+
+
 #include "mainserver.h"
 
 #include <QApplication>
